@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CHAN'S CRM</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-title" content="CHAN'S">
+<meta name="theme-color" content="#C4A882">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#FAF8F5;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+#app{height:100%;display:flex;flex-direction:column}
+input,select,button{font-family:inherit;-webkit-appearance:none;border-radius:0;touch-action:manipulation}
+input:focus,select:focus,textarea:focus{font-size:16px !important;}
+::-webkit-scrollbar{display:none}
+/* 滾動優化 */
+.modal-body{scroll-behavior:smooth}
+.modal-box{scroll-behavior:smooth;overscroll-behavior:contain}
+.content{scroll-behavior:smooth;overscroll-behavior-y:contain}
+/* 防止 input focus 時頁面跳動 */
+input,select,textarea{font-size:16px !important}
+/* 讓 modal 內容不影響背景滾動 */
+body.modal-open{overflow:hidden}
+button{cursor:pointer;border:none;background:none}
+/* Colors */
+:root{
+  --brand:#C4A882;--brand-dk:#A8896A;--brand-lt:#F0E8DE;
+  --bg:#FAF8F5;--surface:#fff;--warm:#F5EFE8;
+  --text:#3A3330;--sub:#6B6560;--muted:#9B9390;--hint:#C4BDB9;
+  --profit:#7A9E7E;--loss:#C47A7A;
+  --border:#EDE8E3;--border-lt:#F5F1ED;
+}
+/* Layout */
+.layout{display:flex;height:100%;overflow:hidden}
+.hamburger{display:flex!important;min-width:44px;min-height:44px;cursor:pointer;z-index:10}
+.sidebar{width:216px;flex-shrink:0;background:#fff;border-right:1px solid var(--border-lt);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:40;transform:translateX(-100%);transition:transform .3s ease}
+.sidebar.open{transform:translateX(0)}
+@media(min-width:768px){.sidebar{position:static;transform:none}.hamburger{display:none!important}}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;margin-left:0}
+@media(min-width:768px){.main{margin-left:216px}}
+.header{background:#fff;border-bottom:1px solid var(--border-lt);padding:16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 16px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(20,16,14,.4);z-index:30}
+.overlay.show{display:block}
+/* Sidebar brand */
+.brand{padding:24px 20px 16px;display:flex;align-items:center;gap:12px}
+.brand-icon{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand-dk));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-icon svg{color:#fff}
+.brand-text-main{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--text)}
+.brand-text-sub{font-size:11px;letter-spacing:.06em;color:var(--muted)}
+.sidebar-divider{height:1px;background:var(--border-lt);margin:0 16px 8px}
+nav{flex:1;overflow-y:auto;padding:0 12px}
+.nav-item{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;margin-bottom:2px;font-size:14px;color:var(--sub);background:none;text-align:left;transition:all .15s}
+.nav-item.active{background:var(--brand-lt);color:var(--brand-dk);font-weight:600}
+.nav-item svg{flex-shrink:0}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--brand);margin-left:auto}
+.user-area{padding:12px 16px 20px;border-top:1px solid var(--border-lt)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--brand-lt);color:var(--brand-dk);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+/* Card */
+.card{background:#fff;border-radius:16px;border:1px solid var(--border-lt);box-shadow:0 1px 3px rgba(58,51,48,.07),0 1px 2px rgba(58,51,48,.04)}
+/* KPI card */
+.kpi-card{background:#fff;border-radius:16px;border:1px solid var(--border-lt);box-shadow:0 1px 3px rgba(58,51,48,.07);padding:16px;position:relative;overflow:hidden}
+.kpi-bar{position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 2px 2px 0}
+.kpi-label{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.03em}
+.kpi-value{font-size:20px;font-weight:700;color:var(--text);margin-top:4px;letter-spacing:-.02em}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:4px}
+/* Grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+/* Chips */
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:500;background:var(--brand-lt);color:var(--brand-dk)}
+.chip-profit{background:#EDF5EE;color:var(--profit)}
+.chip-loss{background:#FBEAEA;color:var(--loss)}
+.chip-muted{background:var(--warm);color:var(--muted)}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:500;transition:all .15s;border:none;cursor:pointer}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-secondary{background:var(--warm);color:var(--sub);border:1px solid var(--border)}
+.btn-danger{background:#F0D8D8;color:var(--loss)}
+.btn-sm{padding:6px 12px;font-size:12px;gap:4px;border-radius:10px}
+.btn-grad{background:linear-gradient(135deg,var(--brand),var(--brand-dk));color:#fff}
+/* Input */
+.inp-wrap{margin-bottom:12px}
+.inp-label{display:block;font-size:12px;font-weight:500;color:var(--sub);margin-bottom:6px}
+.inp{width:100%;padding:10px 14px;font-size:14px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--text);outline:none;-webkit-appearance:none}
+.inp:focus{border-color:var(--brand)}
+select.inp{appearance:none;-webkit-appearance:none}
+.inp[readonly]{background:var(--warm)}
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(20,16,14,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:768px){.modal-bg{align-items:center}}
+.modal-box{background:#fff;width:100%;max-width:512px;border-radius:24px 24px 0 0;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+@media(min-width:768px){.modal-box{border-radius:16px}}
+.modal-handle{display:flex;justify-content:center;padding:12px 0 4px}
+.modal-handle-bar{width:32px;height:4px;border-radius:4px;background:var(--border)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border-lt)}
+.modal-title{font-size:15px;font-weight:600;color:var(--text)}
+.modal-close{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);background:none;border:none;cursor:pointer}
+.modal-body{padding:20px}
+/* Tabs */
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{flex:1;padding:6px;border-radius:12px;font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .15s;background:var(--warm);color:var(--sub)}
+.tab.active{background:var(--brand);color:#fff}
+/* Month nav */
+.month-nav{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.month-btn{width:32px;height:32px;border-radius:10px;background:var(--warm);color:var(--sub);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0}
+.month-label{flex:1;text-align:center;font-size:15px;font-weight:600;color:var(--text)}
+/* Section */
+.section{border-radius:16px;overflow:hidden;margin-bottom:16px;border:1px solid var(--border-lt)}
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-lt)}
+.section-body{padding:16px}
+/* Summary card */
+.summary-card{border-radius:16px;overflow:hidden;margin-bottom:16px;border:2px solid var(--brand)}
+.summary-header{padding:10px 16px;background:linear-gradient(135deg,var(--brand),var(--brand-dk))}
+.summary-header span{font-size:12px;font-weight:700;color:#fff;letter-spacing:.05em}
+.summary-row{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:8px}
+.summary-row:last-child{margin-bottom:0}
+.summary-divider{border:none;border-top:1px solid var(--border-lt);margin:8px 0}
+/* Order items */
+.item-box{background:var(--warm);border-radius:12px;padding:12px;margin-bottom:8px}
+/* Progress bar */
+.pbar-wrap{margin-bottom:4px}
+.pbar-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
+.pbar-track{height:6px;border-radius:99px;background:var(--brand-lt);overflow:hidden}
+.pbar-fill{height:100%;border-radius:99px;transition:width .5s ease}
+.pbar-bottom{display:flex;justify-content:space-between;font-size:11px;color:var(--hint);margin-top:4px}
+/* Month group toggle */
+.month-group-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-radius:16px;border:none;cursor:pointer;transition:all .15s;margin-bottom:4px}
+/* Accordion body */
+.accordion-body{margin-top:8px}
+/* Confirm modal danger */
+.confirm-msg{font-size:14px;line-height:1.8;color:var(--sub);margin-bottom:20px;white-space:pre-line}
+/* Misc */
+.space-y-2>*+*{margin-top:8px}
+.space-y-3>*+*{margin-top:12px}
+.space-y-4>*+*{margin-top:16px}
+.flex{display:flex}.flex-1{flex:1 1 0}.gap-2{gap:8px}.gap-3{gap:12px}
+.items-center{align-items:center}.items-start{align-items:flex-start}
+.justify-between{justify-content:space-between}
+.font-bold{font-weight:700}.font-semibold{font-weight:600}.font-medium{font-weight:500}
+.text-xs{font-size:12px}.text-sm{font-size:14px}.text-lg{font-size:18px}.text-xl{font-size:20px}.text-2xl{font-size:24px}
+.text-center{text-align:center}.text-right{text-align:right}
+.min-w-0{min-width:0}.flex-wrap{flex-wrap:wrap}.flex-shrink-0{flex-shrink:0}
+.overflow-x-auto{overflow-x:auto}
+.mt-1{margin-top:4px}.mt-2{margin-top:8px}.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}.ml-auto{margin-left:auto}
+.p-3{padding:12px}.p-4{padding:16px}.p-8{padding:32px}
+.w-full{width:100%}
+.rounded-full{border-radius:99px}.rounded-xl{border-radius:12px}.rounded-2xl{border-radius:16px}
+.border-t{border-top:1px solid}
+</style>
+</head>
+<body>
+
+<div id="open-guide" style="display:none;position:fixed;inset:0;background:rgba(58,51,48,.85);z-index:9999;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#fff;border-radius:24px;padding:28px 24px;max-width:320px;width:100%;text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">📱</div>
+    <h2 style="font-size:18px;font-weight:700;color:#3A3330;margin-bottom:8px">CHAN'S CRM</h2>
+    <p style="font-size:14px;color:#6B6560;line-height:1.7;margin-bottom:20px">
+      如果畫面無法顯示，<br>請依以下步驟開啟：
+    </p>
+    <div style="background:#F5EFE8;border-radius:14px;padding:16px;text-align:left;margin-bottom:20px">
+      <p style="font-size:13px;color:#3A3330;line-height:2;font-weight:500">
+        <strong>iPhone / Safari：</strong><br>
+        1. 點右上角 ··· → 分享<br>
+        2. 選「以 Safari 開啟」<br><br>
+        <strong>Android / Chrome：</strong><br>
+        1. 點選檔案<br>
+        2. 選「Chrome」開啟
+      </p>
+    </div>
+    <button onclick="document.getElementById('open-guide').style.display='none';localStorage.setItem('guide-seen','1')"
+      style="width:100%;padding:12px;background:#C4A882;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">
+      我知道了，繼續使用
+    </button>
+  </div>
+</div>
+<script>
+// 只在特定情況顯示引導（首次使用 file:// 協定）
+(function(){
+  try {
+    var seen = localStorage.getItem('guide-seen');
+    // 移除 guide，直接讓 App 正常執行
+    // 引導已整合在說明文件中
+  } catch(e) {}
+})();
+</script>
+<div id="app">
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20 3 8l4.5 4L12 4l4.5 8L21 8l-2 12"/></svg>
+        </div>
+        <div><div class="brand-text-main">CHAN'S</div><div class="brand-text-sub">SALES CRM</div></div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <nav id="nav"></nav>
+      <div class="user-area">
+        <div class="flex items-center gap-2">
+          <div class="user-avatar">陳</div>
+          <div><div style="font-size:14px;font-weight:600;color:var(--text)">小陳</div><div style="font-size:12px;color:var(--muted)">皇家管理者</div></div>
+        </div>
+      </div>
+    </aside>
+    <div class="main">
+      <header class="header">
+        <button class="hamburger" onclick="toggleSidebar()" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:none;border:none;color:var(--sub);margin-left:-6px;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+        <div style="flex:1">
+          <div id="page-title" style="font-size:15px;font-weight:600;color:var(--text)">總覽</div>
+          <div id="page-date" style="font-size:12px;color:var(--hint);margin-top:2px"></div>
+        </div>
+        <div style="display:none" class="md-flex items-center gap-1" id="brand-header">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C4A882" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20 3 8l4.5 4L12 4l4.5 8L21 8l-2 12"/></svg>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.15em;color:var(--brand)">CHAN'S</span>
+        </div>
+      </header>
+      <div class="content" id="content"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 常數 ────────────────────────────────────────────────────────
+const C={brand:'#C4A882',brandDk:'#A8896A',brandLt:'#F0E8DE',bg:'#FAF8F5',warm:'#F5EFE8',text:'#3A3330',sub:'#6B6560',muted:'#9B9390',hint:'#C4BDB9',profit:'#7A9E7E',loss:'#C47A7A',border:'#EDE8E3',borderLt:'#F5F1ED'};
+const fmt=n=>'$'+Number(n||0).toLocaleString();
+const pct=(a,b)=>b?Math.min(100,Math.round(a/b*100)):0;
+
+const SOURCE_PRICE_KEY={'零售':'零售','1+1優惠':'VIP任選','基礎VIP':'VIP滿4000','VVIP':'實習','三級':'三級','三級輔導':'三級輔導','二級':'二級','一級':'一級'};
+const isTeam=s=>['三級','三級輔導','二級','一級'].includes(s);
+const ORDER_SOURCES=['零售','1+1優惠','基礎VIP','VVIP','三級','三級輔導','二級','一級'];
+const SHIPPING_OPTS=['711','全家','宅配','雲倉'];
+const SHIPPING_FEE={'711':38,'全家':35,'宅配':60,'雲倉':0};
+const PAYMENT_OPTS=['匯款','貨到付款','信用卡','無卡分期'];
+const TRACK_DAYS=[{day:1,label:'第1天',msg:'提醒客戶產品已寄出'},{day:3,label:'第3天',msg:'確認收到+教學使用+請客戶拍體態數據'},{day:7,label:'第7天',msg:'詢問使用效果與口感'},{day:14,label:'第14天',msg:'提醒拍新體態與數據圖'},{day:28,label:'第28天',msg:'提醒回購'}];
+const ELITE_MONTHLY=[{month:'2026-02',amount:45430},{month:'2026-03',amount:125520},{month:'2026-04',amount:270488},{month:'2026-05',amount:105760},{month:'2026-06',amount:54090}];
+const ELITE_TARGET=4000000;
+const ELITE_CURRENT=ELITE_MONTHLY.reduce((s,m)=>s+m.amount,0);
+
+const PRODUCTS=[
+  {id:1,name:'纖纖飲',cat:'纖體',cost:700,prices:{零售:1480,'VIP任選':1380,'VIP滿4000':1280,實習:1160,三級:990,三級輔導:955,二級:880,一級:700}},
+  {id:2,name:'纖飄錠',cat:'纖體',cost:700,prices:{零售:1480,'VIP任選':1380,'VIP滿4000':1280,實習:1160,三級:990,三級輔導:955,二級:880,一級:700}},
+  {id:3,name:'紫纖飲',cat:'纖體',cost:440,prices:{零售:990,'VIP任選':900,'VIP滿4000':830,實習:780,三級:660,三級輔導:635,二級:580,一級:440}},
+  {id:4,name:'爆纖錠',cat:'纖體',cost:430,prices:{零售:880,'VIP任選':800,'VIP滿4000':740,實習:660,三級:580,三級輔導:560,二級:520,一級:440}},
+  {id:5,name:'爆纖錠體驗包',cat:'纖體',cost:120,prices:{零售:240,實習:190,三級:164,三級輔導:158,二級:146,一級:120}},
+  {id:6,name:'纖酵宿',cat:'纖體',cost:440,prices:{零售:990,'VIP任選':900,'VIP滿4000':830,實習:780,三級:660,三級輔導:635,二級:580,一級:440}},
+  {id:7,name:'纖酵宿體驗包',cat:'纖體',cost:75,prices:{零售:190,實習:145,三級:117,三級輔導:113,二級:103,一級:75}},
+  {id:8,name:'葉黃素EX飲',cat:'大健康',cost:440,prices:{零售:990,'VIP任選':900,'VIP滿4000':830,實習:780,三級:660,三級輔導:635,二級:580,一級:440}},
+  {id:9,name:'晶亮凍',cat:'大健康',cost:320,prices:{零售:990,'VIP任選':900,'VIP滿4000':830,實習:780,三級:660,三級輔導:635,二級:580,一級:440}},
+  {id:10,name:'益生菌',cat:'大健康',cost:620,prices:{零售:1280,'VIP任選':1180,'VIP滿4000':1100,實習:990,三級:860,三級輔導:830,二級:770,一級:620}},
+  {id:11,name:'9國英雄',cat:'大健康',cost:320,prices:{零售:680,'VIP任選':630,'VIP滿4000':600,實習:530,三級:455,三級輔導:440,二級:410,一級:320}},
+  {id:12,name:'固樂纖',cat:'大健康',cost:740,prices:{零售:1680,'VIP任選':1580,'VIP滿4000':1480,實習:1260,三級:1080,三級輔導:1040,二級:920,一級:740}},
+  {id:13,name:'水光錠',cat:'美肌',cost:740,prices:{零售:1680,'VIP任選':1580,'VIP滿4000':1480,實習:1260,三級:1080,三級輔導:1040,二級:920,一級:740}},
+  {id:14,name:'水光緹帶面膜精裝盒',cat:'美肌',cost:360,prices:{零售:700,'VIP任選':650,'VIP滿4000':600,實習:550,三級:500,三級輔導:485,二級:450,一級:360}},
+  {id:15,name:'水光緹帶面膜體驗包',cat:'美肌',cost:75,prices:{零售:150,實習:100,三級:90,三級輔導:87,二級:80,一級:65}},
+  {id:16,name:'雪聚露',cat:'美肌',cost:620,prices:{零售:1280,'VIP任選':1180,'VIP滿4000':1100,實習:990,三級:860,三級輔導:830,二級:770,一級:620}},
+  {id:17,name:'婕肌零',cat:'美肌',cost:440,prices:{零售:990,'VIP任選':900,'VIP滿4000':830,實習:780,三級:660,三級輔導:635,二級:580,一級:440}},
+  {id:18,name:'婕肌零體驗包',cat:'美肌',cost:15,prices:{零售:40,實習:30,三級:25,三級輔導:24,二級:20,一級:15}},
+  {id:19,name:'Vitalab玻尿酸保濕液',cat:'美肌',cost:440,prices:{零售:990,'VIP任選':900,'VIP滿4000':830,實習:780,三級:660,三級輔導:635,二級:580,一級:440}},
+  {id:20,name:'積雪草精緹護手霜',cat:'美肌',cost:320,prices:{零售:680,'VIP任選':630,'VIP滿4000':600,實習:530,三級:455,三級輔導:440,二級:410,一級:320}},
+  {id:21,name:'身體精華油',cat:'美肌',cost:620,prices:{零售:1280,'VIP任選':1180,'VIP滿4000':1100,實習:990,三級:860,三級輔導:830,二級:770,一級:620}},
+  {id:22,name:'正冠茶',cat:'美肌',cost:440,prices:{零售:990,'VIP任選':900,'VIP滿4000':830,實習:780,三級:660,三級輔導:635,二級:580,一級:440}},
+  {id:23,name:'法樂蓬',cat:'美肌',cost:620,prices:{零售:1280,'VIP任選':1180,'VIP滿4000':1100,實習:990,三級:860,三級輔導:830,二級:770,一級:620}},
+  {id:24,name:'法樂蓬試用包',cat:'美肌',cost:12,prices:{零售:30,實習:24,三級:21,三級輔導:20,二級:17,一級:12}},
+  
+  {id:26,name:'頭皮水',cat:'美肌',cost:500,prices:{零售:990,'VIP任選':900,'VIP滿4000':830,實習:840,三級:720,三級輔導:695,二級:640,一級:500}},
+];
+function getPrice(name,src){const p=PRODUCTS.find(x=>x.name===name);if(!p)return 0;const k=SOURCE_PRICE_KEY[src]||'零售';return p.prices[k]||p.prices['零售']||0;}
+function getCost(name){return(PRODUCTS.find(x=>x.name===name)||{}).cost||0;}
+
+function calcOrder(o){
+  const items=o.items||[{name:o.product||'',qty:o.qty||1,price:o.price||0,cost:o.cost||0}];
+  const revenue=items.reduce((s,i)=>s+(+i.qty||0)*(+i.price||0),0);
+  const prodCost=items.reduce((s,i)=>s+(+i.qty||0)*(+i.cost||0),0);
+  const bossGifts=o.bossGifts||[];
+  const bossGiftRevenue=bossGifts.reduce((s,g)=>s+(+g.qty||0)*(+g.price||0),0);
+  const ex=o.expenses||{shipping:0,packaging:0,commission:0,discount:0,other:0};
+  const totalExp=(+ex.shipping||0)+(+ex.packaging||0)+(+ex.commission||0)+(+ex.discount||0)+(+ex.other||0);
+  const orderProfit=revenue-prodCost-totalExp;
+  const totalProfit=orderProfit+bossGiftRevenue;
+  return{...o,items,bossGifts,expenses:ex,revenue,prodCost,bossGiftRevenue,totalExp,orderProfit,totalProfit,total:revenue,profit:orderProfit,profitRate:revenue?Math.round(orderProfit/revenue*100):0};
+}
+
+// ── 全域 State ───────────────────────────────────────────────────
+let STATE={
+  page:'dashboard',
+  menuOpen:false,
+  orders:[],
+  expenses:[
+    {id:1,date:'2026-06-18',category:'補貨',amount:28000,note:''},
+    {id:2,date:'2026-06-17',category:'廣告',amount:5000,note:'FB廣告'},
+    {id:3,date:'2026-06-16',category:'包材',amount:1200,note:''},
+  ],
+  customers:[
+    {id:1,name:'李思蓉',phone:'0908783566',pickup:'全家',products:['纖纖飲'],account:'',note:''},
+    {id:2,name:'劉倩芸',phone:'0971660359',pickup:'全家',products:['纖飄錠'],account:'',note:''},
+    {id:3,name:'沛蕊',phone:'',pickup:'全家',products:['纖飄錠'],account:'',note:''},
+    {id:4,name:'玉貞',phone:'',pickup:'全家',products:['纖飄錠'],account:'',note:''},
+    {id:5,name:'Dora',phone:'',pickup:'全家',products:['纖纖飲','晶亮凍'],account:'',note:''},
+    {id:6,name:'Hana',phone:'',pickup:'全家',products:['纖纖飲'],account:'',note:''},
+    {id:7,name:'陳果',phone:'',pickup:'全家',products:['固樂纖'],account:'',note:''},
+    {id:8,name:'亭妮',phone:'',pickup:'全家',products:['纖纖飲'],account:'',note:''},
+    {id:9,name:'紫心',phone:'',pickup:'全家',products:['纖纖飲','纖飄錠'],account:'',note:''},
+    {id:10,name:'亭姬',phone:'',pickup:'全家',products:['纖飄錠'],account:'',note:''},
+  ],
+  // UI state
+  dashTab:'月',dashVm:'',dashVd:'',
+  orderTab:'list',orderFSrc:'all',orderExpandedMonths:{},orderTrackExpanded:{},
+  showOrderForm:false,editOrder:null,
+  ordersDelId:null,
+  customerSearch:'',showCustForm:false,editCust:null,custDelTarget:null,
+  monthlyVm:'',
+  expTab:'quick',expQDate:'',expQty:{'711運費':'','全家運費':'','宅配運費':'','耗材':''},
+  showExpForm:false,
+  goalTarget:200000,goalEditing:false,goalTmp:'200000',
+  // 理財規劃
+  finance:{
+    accounts:[
+      {id:'stock',name:'股票戶',current:0,monthly:20000,target:0,color:'#7A9E7E'},
+      {id:'company',name:'公司戶',current:0,monthly:20000,target:0,color:'#C4A882'},
+      {id:'saving',name:'存錢戶',current:0,monthly:10000,target:0,color:'#96AFBF'},
+    ],
+    goals:[],
+  },
+  showFinanceAccountModal:false,
+  editFinanceAccount:null,
+  showFinanceGoalModal:false,
+  editFinanceGoal:null,
+  financeDelGoalId:null,
+};
+
+const ORDERS_INIT=[
+  {id:9001,date:'2026-02-28',customer:'【2月零售彙整】',source:'零售',shipping:'宅配',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:8470,cost:0}],bossGifts:[],expenses:{shipping:0,packaging:0,commission:0,discount:0,other:0},trackDays:[],trackDone:[]},
+  {id:9002,date:'2026-02-28',customer:'【2月團隊彙整】',source:'三級',shipping:'宅配',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:3320,cost:0}],bossGifts:[],expenses:{shipping:0,packaging:0,commission:0,discount:0,other:0},trackDays:[],trackDone:[]},
+  {id:9003,date:'2026-03-31',customer:'【3月零售彙整】',source:'零售',shipping:'宅配',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:14690,cost:0}],bossGifts:[],expenses:{shipping:0,packaging:0,commission:0,discount:0,other:0},trackDays:[],trackDone:[]},
+  {id:9004,date:'2026-03-31',customer:'【3月團隊彙整】',source:'三級',shipping:'宅配',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:50489,cost:0}],bossGifts:[],expenses:{shipping:0,packaging:0,commission:0,discount:0,other:0},trackDays:[],trackDone:[]},
+  {id:9005,date:'2026-04-30',customer:'【4月零售彙整】',source:'零售',shipping:'宅配',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:12680,cost:0}],bossGifts:[],expenses:{shipping:0,packaging:0,commission:0,discount:0,other:0},trackDays:[],trackDone:[]},
+  {id:9006,date:'2026-04-30',customer:'【4月團隊彙整】',source:'三級',shipping:'宅配',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:95605,cost:0}],bossGifts:[],expenses:{shipping:0,packaging:0,commission:0,discount:0,other:0},trackDays:[],trackDone:[]},
+  {id:9007,date:'2026-05-31',customer:'【5月零售彙整】',source:'零售',shipping:'宅配',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:6790,cost:0}],bossGifts:[],expenses:{shipping:0,packaging:0,commission:0,discount:0,other:0},trackDays:[],trackDone:[]},
+  {id:9008,date:'2026-05-31',customer:'【5月團隊彙整】',source:'三級',shipping:'宅配',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:67693,cost:0}],bossGifts:[],expenses:{shipping:0,packaging:0,commission:0,discount:0,other:0},trackDays:[],trackDone:[]},
+  {id:101,date:'2026-06-01',customer:'陳果',source:'三級',shipping:'全家',payment:'匯款',items:[{name:'固樂纖',qty:6,price:817,cost:577}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:102,date:'2026-06-01',customer:'亭妮',source:'三級',shipping:'全家',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:1980,cost:1320}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:103,date:'2026-06-01',customer:'沛蕊',source:'零售',shipping:'全家',payment:'匯款',items:[{name:'纖飄錠',qty:2,price:900,cost:640}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:104,date:'2026-06-01',customer:'玉貞',source:'零售',shipping:'全家',payment:'匯款',items:[{name:'纖飄錠',qty:1,price:900,cost:640}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:105,date:'2026-06-03',customer:'瑞臻',source:'三級',shipping:'全家',payment:'匯款',items:[{name:'婕肌零',qty:2,price:660,cost:440}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:106,date:'2026-06-03',customer:'劉莊學',source:'零售',shipping:'全家',payment:'匯款',items:[{name:'纖飄錠',qty:2,price:900,cost:640}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:107,date:'2026-06-04',customer:'雅雯',source:'零售',shipping:'全家',payment:'匯款',items:[{name:'纖飄錠',qty:2,price:900,cost:640}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:108,date:'2026-06-06',customer:'沈佑管',source:'零售',shipping:'全家',payment:'匯款',items:[{name:'纖纖飲',qty:2,price:2480,cost:1160}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:109,date:'2026-06-06',customer:'紫心',source:'VVIP',shipping:'全家',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:2720,cost:1400}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:110,date:'2026-06-07',customer:'佩佩姐',source:'零售',shipping:'全家',payment:'匯款',items:[{name:'晶亮凍',qty:2,price:2440,cost:1120}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:111,date:'2026-06-09',customer:'亭姬',source:'三級',shipping:'全家',payment:'匯款',items:[{name:'纖飄錠',qty:3,price:1980,cost:990}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:112,date:'2026-06-09',customer:'Dora',source:'零售',shipping:'全家',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:3180,cost:1740}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:113,date:'2026-06-10',customer:'函予',source:'三級',shipping:'全家',payment:'匯款',items:[{name:'纖纖飲',qty:3,price:3960,cost:2700}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:114,date:'2026-06-10',customer:'儀真',source:'零售',shipping:'全家',payment:'匯款',items:[{name:'纖飄錠',qty:2,price:4150,cost:2360}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:115,date:'2026-06-10',customer:'念慈',source:'零售',shipping:'全家',payment:'匯款',items:[{name:'纖飄錠',qty:2,price:900,cost:640}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:116,date:'2026-06-12',customer:'Hana',source:'VVIP',shipping:'全家',payment:'匯款',items:[{name:'纖纖飲',qty:4,price:6780,cost:4160}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:117,date:'2026-06-15',customer:'立師',source:'VVIP',shipping:'全家',payment:'匯款',items:[{name:'纖纖飲',qty:4,price:8920,cost:5480}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:118,date:'2026-06-16',customer:'亭姬',source:'三級',shipping:'全家',payment:'匯款',items:[{name:'纖飄錠',qty:3,price:1980,cost:990}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:119,date:'2026-06-16',customer:'顏韶澤',source:'零售',shipping:'全家',payment:'匯款',items:[{name:'纖纖飲',qty:1,price:4600,cost:2600}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:120,date:'2026-06-17',customer:'妘瑜',source:'二級',shipping:'全家',payment:'匯款',items:[{name:'纖纖飲',qty:6,price:6960,cost:4920}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+  {id:121,date:'2026-06-18',customer:'陳玟妮',source:'零售',shipping:'全家',payment:'匯款',items:[{name:'纖飄錠',qty:2,price:900,cost:640}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0},trackDays:[1,3,7,14,28],trackDone:[]},
+];
+STATE.orders=ORDERS_INIT.map(calcOrder);
+
+// 日期初始化
+const today=new Date().toISOString().slice(0,10);
+STATE.dashVm=today.slice(0,7);
+STATE.dashVd=today;
+STATE.monthlyVm=today.slice(0,7);
+STATE.expQDate=today;
+STATE.orderExpandedMonths[today.slice(0,7)]=true;
+STATE.orderTrackExpanded[today.slice(0,7)]=true;
+document.getElementById('page-date').textContent=new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+
+// ── SVG helpers ────────────────────────────────────────────────
+function svg(d,size=16){
+  const paths=Array.isArray(d)?d:[d];
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${paths.map(p=>`<path d="${p}"/>`).join('')}</svg>`;
+}
+const ICONS={
+  home:['M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'],
+  book:['M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z','M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'],
+  gift:['M20 12v10H4V12','M22 7H2v5h20V7z','M12 22V7','M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z','M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z'],
+  bar:['M18 20V10','M12 20V4','M6 20v-6'],
+  bag:['M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z','M3 6h18','M16 10a4 4 0 0 1-8 0'],
+  users:['M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2','M23 21v-2a4 4 0 0 0-3-3.87','M16 3.13a4 4 0 0 1 0 7.75','M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z'],
+  wallet:['M21 12V7H5a2 2 0 0 1 0-4h14v4','M3 5v14a2 2 0 0 0 2 2h16v-5','M18 12a2 2 0 0 0 4h4v-4z'],
+  target:['M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z','M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z','M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z'],
+  plus:['M12 5v14','M5 12h14'],
+  edit:['M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z'],
+  trash:['M3 6h18','M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6','M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2'],
+  x:['M18 6L6 18','M6 6l12 12'],
+  check:['M20 6L9 17l-5-5'],
+  chevLeft:['M15 18l-6-6 6-6'],
+  chevRight:['M9 18l6-6-6-6'],
+  chevDown:['M6 9l6 6 6-6'],
+  chevUp:['M18 15l-6-6-6 6'],
+  piggy:['M19 11a7.5 7.5 0 0 1-7.5 7.5A7.5 7.5 0 0 1 4 11a7.5 7.5 0 0 1 7.5-7.5','M12 8v3l2 2','M20 11h2','M2 11h2','M12 19v2','M9 17l-1 3','M15 17l1 3'],
+};
+
+// ── 渲染引擎 ───────────────────────────────────────────────────
+function h(tag,attrs={},children=''){
+  const a=Object.entries(attrs).map(([k,v])=>{
+    if(k==='style'&&typeof v==='object') return `style="${Object.entries(v).map(([p,val])=>`${p.replace(/([A-Z])/g,'-$1').toLowerCase()}:${val}`).join(';')}"`;
+    if(k==='class') return `class="${v}"`;
+    if(k.startsWith('on')) return '';
+    return `${k}="${v}"`;
+  }).join(' ');
+  const c=Array.isArray(children)?children.join(''):children;
+  return `<${tag}${a?' '+a:''}>${c}</${tag}>`;
+}
+
+function chip(text,variant=''){return `<span class="chip${variant?' chip-'+variant:''}">${text}</span>`;}
+function kpiCard(label,value,sub='',accent=C.brand){
+  return `<div class="kpi-card"><div class="kpi-bar" style="background:${accent}"></div><div style="padding-left:12px"><p class="kpi-label">${label}</p><p class="kpi-value">${value}</p>${sub?`<p class="kpi-sub">${sub}</p>`:''}</div></div>`;
+}
+function btn(text,onclick,cls='btn-primary',icon=''){
+  return `<button class="btn ${cls}" onclick="${onclick}">${icon?svg(ICONS[icon],14):''}${text}</button>`;
+}
+function pbar(label,current,target,accent=C.brand){
+  const p=pct(current,target);
+  return `<div class="pbar-wrap"><div class="pbar-top"><span style="color:var(--sub);font-size:13px">${label}</span><span style="color:var(--muted);font-size:12px">${p}% · 差 ${fmt(target-current)}</span></div><div class="pbar-track"><div class="pbar-fill" style="width:${p}%;background:${accent}"></div></div><div class="pbar-bottom"><span>${fmt(current)}</span><span>目標 ${fmt(target)}</span></div></div>`;
+}
+function card(content,cls=''){return `<div class="card p-4 ${cls}">${content}</div>`;}
+function section(label,content,color=C.brand,action=''){
+  return `<div class="section"><div class="section-header" style="background:${color}18"><span style="font-size:12px;font-weight:700;color:${color}">${label}</span>${action}</div><div class="section-body">${content}</div></div>`;
+}
+function modal(title,content){
+  return `<div class="modal-bg" id="modal-overlay" onclick="handleModalBgClick(event)"><div class="modal-box"><div class="modal-handle"><div class="modal-handle-bar"></div></div><div class="modal-header"><span class="modal-title">${title}</span><button class="modal-close" onclick="closeModal()">${svg(ICONS.x,15)}</button></div><div class="modal-body">${content}</div></div></div>`;
+}
+function inp(label,id,type='text',value='',extra=''){
+  return `<div class="inp-wrap"><label class="inp-label">${label}</label><input class="inp" type="${type}" id="${id}" value="${esc(value)}" ${extra} oninput="onInpChange('${id}',this.value)"></div>`;
+}
+function sel(label,id,options,value=''){
+  const opts=options.map(o=>`<option value="${o}" ${o===value?'selected':''}>${o}</option>`).join('');
+  return `<div class="inp-wrap"><label class="inp-label">${label}</label><select class="inp" id="${id}" onchange="onSelChange('${id}',this.value)">${opts}</select></div>`;
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── 路由 ───────────────────────────────────────────────────────
+const PAGES=[
+  {id:'dashboard',label:'總覽',icon:'home'},
+  {id:'orders',label:'銷售記帳',icon:'book'},
+  {id:'gifts',label:'搭贈收益',icon:'gift'},
+  {id:'monthly',label:'月淨利',icon:'bar'},
+  {id:'products',label:'商品管理',icon:'bag'},
+  {id:'customers',label:'客戶資料',icon:'users'},
+  {id:'expenses',label:'支出管理',icon:'wallet'},
+  {id:'goals',label:'目標追蹤',icon:'target'},
+  {id:'finance',label:'理財規劃',icon:'piggy'},
+];
+
+function navTo(page){
+  STATE.page=page;
+  STATE.menuOpen=false;
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+  const p=PAGES.find(x=>x.id===page);
+  document.getElementById('page-title').textContent=p?p.label:'';
+  renderNav();
+  renderPage();
+}
+function toggleSidebar(){
+  STATE.menuOpen=!STATE.menuOpen;
+  document.getElementById('sidebar').classList.toggle('open',STATE.menuOpen);
+  document.getElementById('overlay').classList.toggle('show',STATE.menuOpen);
+}
+function closeSidebar(){STATE.menuOpen=false;document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
+
+function renderNav(){
+  document.getElementById('nav').innerHTML=PAGES.map(p=>`<button class="nav-item${STATE.page===p.id?' active':''}" onclick="navTo('${p.id}')">${svg(ICONS[p.icon],15)}<span>${p.label}</span>${STATE.page===p.id?'<span class="nav-dot"></span>':''}</button>`).join('');
+}
+
+function renderPage(){
+  const el=document.getElementById('content');
+  switch(STATE.page){
+    case 'dashboard': el.innerHTML=renderDashboard();break;
+    case 'orders': el.innerHTML=renderOrders();break;
+    case 'gifts': el.innerHTML=renderGifts();break;
+    case 'monthly': el.innerHTML=renderMonthly();break;
+    case 'products': el.innerHTML=renderProductsPage();break;
+    case 'customers': el.innerHTML=renderCustomers();break;
+    case 'expenses': el.innerHTML=renderExpenses();break;
+    case 'goals': el.innerHTML=renderGoals();break;
+    case 'finance': el.innerHTML=renderFinance();break;
+  }
+  renderModal();
+}
+
+// ── 計算輔助 ───────────────────────────────────────────────────
+function moData(orders,vm){
+  const mo=orders.filter(o=>o.date.startsWith(vm));
+  const sales=mo.reduce((s,o)=>s+(o.revenue||o.total||0),0);
+  const profit=mo.reduce((s,o)=>s+(o.orderProfit||o.profit||0),0);
+  const boss=mo.reduce((s,o)=>s+(o.bossGiftRevenue||0),0);
+  return{mo,sales,profit,boss,count:mo.length};
+}
+
+// ── 儀表板 ─────────────────────────────────────────────────────
+function renderDashboard(){
+  const {dashTab:tab,dashVm:vm,dashVd:vd,orders,expenses}=STATE;
+  const tabs=`<div class="tabs">${['今日','月報','日查詢'].map(t=>`<button class="tab${tab===t?' active':''}" onclick="setState('dashTab','${t}');renderPage()">${t}</button>`).join('')}</div>`;
+
+  if(tab==='今日'){
+    const tod=orders.filter(o=>o.date===STATE.dashVd.slice(0,10));
+    const todS=tod.reduce((s,o)=>s+(o.revenue||0),0);
+    const todP=tod.reduce((s,o)=>s+(o.orderProfit||0),0);
+    const {profit:mP,boss:mB}=moData(orders,vm);
+    const mExp=expenses.filter(e=>e.date.startsWith(vm)).reduce((s,e)=>s+e.amount,0);
+    return tabs+`<div class="space-y-4">`+
+      `<div class="grid2">${kpiCard('今日銷售',fmt(todS),`${tod.length} 筆`)}${kpiCard('今日淨利',fmt(todP),today)}</div>`+
+      (tod.length?`<div class="space-y-2">${tod.map(o=>`<div class="card p-3"><div class="flex justify-between items-start"><div><p style="font-weight:600;font-size:14px;color:var(--text)">${esc(o.customer)}</p><p style="font-size:12px;color:var(--muted);margin-top:2px">${(o.items||[]).map(i=>esc(i.name)+'×'+i.qty).join('、')}</p></div><div style="text-align:right"><p style="font-weight:600;font-size:14px;color:var(--text)">${fmt(o.revenue||0)}</p><p style="font-size:12px;color:var(--profit)">淨 ${fmt(o.orderProfit||0)}</p></div></div></div>`).join('')}</div>`:`<div class="card p-8 text-center"><p style="color:var(--muted)">今日尚無銷售記錄</p></div>`)+
+      card(pbar('本月淨利目標',mP+mB,STATE.goalTarget))+
+      card(pbar('菁英皇家 400萬',ELITE_CURRENT,ELITE_TARGET,C.brandDk))+
+    `</div>`;
+  }
+  if(tab==='月報'){
+    const {mo,sales,profit,boss,count}=moData(orders,vm);
+    const mExp=expenses.filter(e=>e.date.startsWith(vm)).reduce((s,e)=>s+e.amount,0);
+    const mNet=profit+boss-mExp;
+    const srcMap={};mo.forEach(o=>{srcMap[o.source]=(srcMap[o.source]||0)+(o.revenue||0);});
+    const srcTotal=Object.values(srcMap).reduce((a,b)=>a+b,0);
+    const dayMap={};mo.forEach(o=>{dayMap[o.date]=(dayMap[o.date]||0)+(o.orderProfit||0)+(o.bossGiftRevenue||0);});
+    const maxDay=Math.max(1,...Object.values(dayMap));
+    const mnav=`<div class="month-nav"><button class="month-btn" onclick="prevMonth('dashVm')">${svg(ICONS.chevLeft)}</button><span class="month-label">${vm}</span><button class="month-btn" onclick="nextMonth('dashVm')">${svg(ICONS.chevRight)}</button></div>`;
+    return tabs+mnav+`<div class="space-y-4">`+
+      `<div class="grid2">${kpiCard('總業績',fmt(sales),count+' 筆')}${kpiCard('訂單淨利',fmt(profit),'',C.profit)}</div>`+
+      `<div class="grid2">${kpiCard('搭贈收益',fmt(boss),'老闆活動搭贈','#9088B8')}${kpiCard('本月支出',fmt(mExp),'',C.loss)}</div>`+
+      `<div class="card p-4" style="background:linear-gradient(135deg,${C.brandLt},#fff)"><div class="flex justify-between items-center"><div><p style="font-size:12px;color:var(--sub)">本月實收淨利</p><p style="font-size:24px;font-weight:700;color:${mNet>=0?C.profit:C.loss};margin-top:4px">${fmt(mNet)}</p></div><div style="text-align:right;font-size:12px;color:var(--muted)"><p>淨利 ${fmt(profit)}</p><p>+搭贈 ${fmt(boss)}</p><p>-支出 ${fmt(mExp)}</p></div></div></div>`+
+      (Object.keys(dayMap).length?card(`<p style="font-size:13px;font-weight:600;color:var(--sub);margin-bottom:12px">每日淨利</p><div class="space-y-2">${Object.entries(dayMap).sort((a,b)=>a[0].localeCompare(b[0])).map(([d,n])=>`<div class="flex items-center gap-2"><span style="font-size:11px;color:var(--muted);width:24px;flex-shrink:0">${d.slice(8)}</span><div style="flex:1;height:8px;background:var(--warm);border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.max(2,n/maxDay*100)}%;background:${n>=0?C.profit:C.loss};border-radius:4px"></div></div><span style="font-size:11px;font-weight:600;width:72px;text-align:right;color:${n>=0?C.profit:C.loss}">${fmt(n)}</span></div>`).join('')}</div>`):'')+
+    `</div>`;
+  }
+  // 日查詢
+  const dO=orders.filter(o=>o.date===vd);
+  const dP=dO.reduce((s,o)=>s+(o.orderProfit||0),0);
+  const dB=dO.reduce((s,o)=>s+(o.bossGiftRevenue||0),0);
+  return tabs+`<div class="space-y-4">`+
+    card(inp('查詢日期','dashVd','date',vd))+
+    `<div class="grid2">${kpiCard('當日銷售',fmt(dO.reduce((s,o)=>s+(o.revenue||0),0)),dO.length+' 筆')}${kpiCard('當日淨利',fmt(dP+dB),'',C.profit)}</div>`+
+    (dO.length?`<div class="space-y-2">${dO.map(o=>`<div class="card p-3"><div class="flex justify-between items-start"><div><div class="flex items-center gap-2 flex-wrap"><span style="font-weight:600;font-size:14px;color:var(--text)">${esc(o.customer)}</span>${chip(o.source)}${chip(o.shipping)}</div><p style="font-size:12px;color:var(--muted);margin-top:4px">${(o.items||[]).map(i=>esc(i.name)+'×'+i.qty).join('、')}</p></div><div style="text-align:right"><p style="font-size:14px;font-weight:600;color:var(--text)">${fmt(o.revenue||0)}</p><p style="font-size:12px;color:var(--profit)">淨 ${fmt(o.orderProfit||0)}</p></div></div></div>`).join('')}</div>`:`<div class="card p-8 text-center"><p style="color:var(--muted)">${esc(vd)} 無記錄</p></div>`)+
+  `</div>`;
+}
+
+// ── 銷售記帳 ───────────────────────────────────────────────────
+function renderOrders(){
+  const {orderTab:tab,orders,orderFSrc:fSrc,orderExpandedMonths:expM,orderTrackExpanded:tExp}=STATE;
+  const tabs=`<div class="tabs"><button class="tab${tab==='list'?' active':''}" onclick="setState('orderTab','list');renderPage()">記帳列表</button><button class="tab${tab==='track'?' active':''}" onclick="setState('orderTab','track');renderPage()">產品追蹤</button><button class="tab${tab==='profit'?' active':''}" onclick="setState('orderTab','profit');renderPage()">淨利分析</button></div>`;
+
+  if(tab==='list'){
+    const filtered=fSrc==='all'?orders:orders.filter(o=>o.source===fSrc);
+    const groups={};filtered.forEach(o=>{const mo=o.date.slice(0,7);if(!groups[mo])groups[mo]=[];groups[mo].push(o);});
+    const months=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+    const thisMonth=today.slice(0,7);
+    const srcOpts=['all',...ORDER_SOURCES];
+    const filterBar=`<div class="flex gap-2" style="margin-bottom:12px"><button class="btn btn-grad" onclick="openOrderForm()" style="display:flex;align-items:center;gap:6px">${svg(ICONS.plus,14)}新增記帳</button><select class="inp" style="flex:1" onchange="setState('orderFSrc',this.value);renderPage()">${srcOpts.map(s=>`<option value="${s}" ${s===fSrc?'selected':''}>${s==='all'?'全部來源':s}</option>`).join('')}</select></div>`;
+    const list=months.map(mo=>{
+      const moO=groups[mo].sort((a,b)=>b.date.localeCompare(a.date));
+      const moP=moO.reduce((s,o)=>s+(o.orderProfit||0),0);
+      const moB=moO.reduce((s,o)=>s+(o.bossGiftRevenue||0),0);
+      const isThis=mo===thisMonth,isOpen=expM[mo]||false;
+      return `<div style="margin-bottom:4px"><button class="month-group-btn" style="background:${isThis?C.brandLt:C.warm}" onclick="toggleMonthGroup('orderExpandedMonths','${mo}')"><div class="flex items-center gap-2"><span style="font-size:14px;font-weight:700;color:${isThis?C.brandDk:C.text}">${mo}</span>${isThis?chip('本月'):''}<span style="font-size:12px;color:var(--muted)">${moO.length} 筆</span></div><div class="flex items-center gap-2"><span style="font-size:12px;font-weight:600;color:var(--profit)">${fmt(moP)}</span>${moB>0?`<span style="font-size:12px;color:#9088B8">+搭 ${fmt(moB)}</span>`:''}${svg(isOpen?ICONS.chevUp:ICONS.chevDown,14)}</div></button>${isOpen?`<div class="accordion-body space-y-2">${moO.map(o=>{const rev=o.revenue||0,oP=o.orderProfit||0,bP=o.bossGiftRevenue||0,items=o.items||[];return`<div class="card p-3"><div class="flex items-start justify-between gap-2"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span style="font-weight:600;font-size:14px;color:var(--text)">${esc(o.customer)}</span>${chip(o.source)}${chip(o.shipping)}${o.payment?chip(o.payment,'muted'):''}</div><p style="font-size:12px;color:var(--muted);margin-top:4px">${esc(o.date)} · ${esc(items.map(i=>i.name+'×'+i.qty).join('、'))}</p><div class="flex gap-2 flex-wrap" style="margin-top:4px;font-size:12px"><span style="color:var(--sub)">收入 <strong style="color:var(--text)">${fmt(rev)}</strong></span><span style="color:${oP>=0?C.profit:C.loss}">淨利 <strong>${fmt(oP)}</strong></span>${bP>0?`<span style="color:#9088B8">搭贈 <strong>+${fmt(bP)}</strong></span>`:''}</div>${(o.bossGifts||[]).length?`<p style="font-size:12px;color:#9088B8;margin-top:4px">老闆搭贈：${esc(o.bossGifts.map(g=>g.name+'×'+g.qty).join('、'))}</p>`:''}<div class="flex gap-1" style="margin-top:8px">${TRACK_DAYS.map(t=>`<button onclick="toggleTrack(${o.id},${t.day})" style="width:20px;height:20px;border-radius:50%;font-size:11px;border:none;cursor:pointer;background:${(o.trackDone||[]).includes(t.day)?C.profit:C.warm};color:${(o.trackDone||[]).includes(t.day)?'#fff':C.muted}">${t.day}</button>`).join('')}</div>${o.note?`<p style="font-size:12px;color:var(--muted);margin-top:4px">📝 ${esc(o.note)}</p>`:''}</div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button class="btn btn-sm btn-secondary" onclick="editOrder(${o.id})">${svg(ICONS.edit,12)}</button><button class="btn btn-sm btn-danger" onclick="delOrder(${o.id})">${svg(ICONS.trash,12)}</button></div></div></div>`;}).join('')}</div>`:''}`;
+    }).join('');
+    return tabs+filterBar+(list||`<div class="card p-8 text-center"><p style="color:var(--muted)">目前沒有記錄</p></div>`);
+  }
+  if(tab==='track'){
+    const tList=orders.filter(o=>!o.customer.includes('【')&&(o.trackDays||[]).length>0).map(o=>({...o,pending:TRACK_DAYS.filter(t=>!(o.trackDone||[]).includes(t.day))})).filter(o=>o.pending.length>0).sort((a,b)=>b.date.localeCompare(a.date));
+    const tGroups={};tList.forEach(o=>{const mo=o.date.slice(0,7);if(!tGroups[mo])tGroups[mo]=[];tGroups[mo].push(o);});
+    const tMonths=Object.keys(tGroups).sort((a,b)=>b.localeCompare(a));
+    const thisMonth=today.slice(0,7);
+    if(!tMonths.length) return tabs+`<div class="card p-8 text-center"><p style="color:var(--muted)">所有追蹤都完成了！</p></div>`;
+    return tabs+tMonths.map(mo=>{
+      const isThis=mo===thisMonth,isOpen=tExp[mo]||false;
+      const pending=tGroups[mo].reduce((s,o)=>s+o.pending.length,0);
+      return `<div style="margin-bottom:4px"><button class="month-group-btn" style="background:${isThis?C.brandLt:C.warm}" onclick="toggleMonthGroup('orderTrackExpanded','${mo}')"><div class="flex items-center gap-2"><span style="font-weight:700;font-size:14px;color:${isThis?C.brandDk:C.text}">${mo}</span>${isThis?chip('本月'):''}<span style="font-size:11px;padding:2px 8px;border-radius:99px;background:#FBEAEA;color:var(--loss)">待 ${pending} 項</span></div>${svg(isOpen?ICONS.chevUp:ICONS.chevDown,14)}</button>${isOpen?`<div class="accordion-body space-y-2">${tGroups[mo].map(o=>`<div class="card p-3"><div class="flex justify-between items-start" style="margin-bottom:12px"><div><p style="font-weight:600;font-size:14px;color:var(--text)">${esc(o.customer)}</p><p style="font-size:12px;color:var(--muted);margin-top:2px">${esc(o.date)} · ${esc((o.items||[]).map(i=>i.name).join('、'))}</p></div>${chip(o.shipping)}</div><div class="space-y-3">${TRACK_DAYS.map(t=>{const done=(o.trackDone||[]).includes(t.day);return`<div class="flex items-start gap-2"><button onclick="toggleTrack(${o.id},${t.day})" style="width:20px;height:20px;border-radius:4px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;border:1px solid ${done?C.profit:C.border};background:${done?C.profit:'#fff'};cursor:pointer">${done?svg(ICONS.check,11).replace('stroke="currentColor"','stroke="white"'):''}</button><div><p style="font-size:12px;font-weight:600;color:${done?C.muted:C.text};text-decoration:${done?'line-through':'none'}">${t.label}</p><p style="font-size:12px;color:var(--muted)">${t.msg}</p></div></div>`;}).join('')}</div></div>`).join('')}</div>`:''}`;
+    }).join('');
+  }
+  // 淨利分析
+  const mm={};orders.forEach(o=>{const mo=o.date.slice(0,7);if(!mm[mo])mm[mo]={c:0,t:0,boss:0};const p=o.orderProfit||0,b=o.bossGiftRevenue||0;if(isTeam(o.source))mm[mo].t+=p;else mm[mo].c+=p;mm[mo].boss+=b;});
+  return tabs+`<div class="space-y-3">${Object.entries(mm).sort((a,b)=>b[0].localeCompare(a[0])).map(([mo,v])=>`<div class="card p-4"><p style="font-weight:600;margin-bottom:12px;color:var(--text)">${mo}</p><div class="grid2" style="gap:8px"><div style="border-radius:12px;padding:12px;text-align:center;background:#FFF5F0"><p style="font-size:12px;color:var(--sub);margin-bottom:4px">客戶淨利</p><p style="font-size:18px;font-weight:700;color:var(--brand)">${fmt(v.c)}</p></div><div style="border-radius:12px;padding:12px;text-align:center;background:#EDF5EE"><p style="font-size:12px;color:var(--sub);margin-bottom:4px">團隊淨利</p><p style="font-size:18px;font-weight:700;color:var(--profit)">${fmt(v.t)}</p></div></div>${v.boss>0?`<div style="border-radius:12px;padding:12px;text-align:center;background:#F7F5FF;margin-top:8px"><p style="font-size:12px;color:var(--sub);margin-bottom:4px">搭贈收益</p><p style="font-size:16px;font-weight:700;color:#9088B8">${fmt(v.boss)}</p></div>`:''}<div class="flex justify-between" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-lt);font-size:14px"><span style="color:var(--sub)">合計（含搭贈）</span><strong style="color:var(--text)">${fmt(v.c+v.t+v.boss)}</strong></div></div>`).join('')}</div>`;
+}
+
+// ── 訂單表單（新增/編輯）──────────────────────────────────────
+let FORM={date:today,customer:'',contact:'',source:'零售',shipping:'全家',payment:'匯款',note:'',items:[{name:'纖纖飲',qty:1,price:getPrice('纖纖飲','零售'),cost:getCost('纖纖飲')}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0}};
+
+function openOrderForm(){STATE.editOrder=null;resetForm();STATE.showOrderForm=true;renderModal();}
+function editOrder(id){STATE.editOrder=STATE.orders.find(o=>o.id===id);if(!STATE.editOrder)return;const o=STATE.editOrder;FORM={date:o.date,customer:o.customer||'',contact:o.contact||'',source:o.source||'零售',shipping:o.shipping||'全家',payment:o.payment||'匯款',note:o.note||'',items:JSON.parse(JSON.stringify(o.items||[{name:'纖纖飲',qty:1,price:o.price||0,cost:o.cost||0}])),bossGifts:JSON.parse(JSON.stringify(o.bossGifts||[])),expenses:JSON.parse(JSON.stringify(o.expenses||{shipping:35,packaging:20,commission:0,discount:0,other:0}))};STATE.showOrderForm=true;renderModal();}
+function resetForm(){FORM={date:today,customer:'',contact:'',source:'零售',shipping:'全家',payment:'匯款',note:'',items:[{name:'纖纖飲',qty:1,price:getPrice('纖纖飲','零售'),cost:getCost('纖纖飲')}],bossGifts:[],expenses:{shipping:35,packaging:20,commission:0,discount:0,other:0}};}
+function closeModal(){STATE.showOrderForm=false;STATE.custDelTarget=null;STATE.ordersDelId=null;renderModal();}
+function handleModalBgClick(e){if(e.target.id==='modal-overlay')closeModal();}
+
+function calcForm(){
+  const revenue=FORM.items.reduce((s,i)=>s+(+i.qty||0)*(+i.price||0),0);
+  const prodCost=FORM.items.reduce((s,i)=>s+(+i.qty||0)*(+i.cost||0),0);
+  const bgRev=FORM.bossGifts.reduce((s,g)=>s+(+g.qty||0)*(+g.price||0),0);
+  const ex=FORM.expenses;
+  const totalExp=(+ex.shipping||0)+(+ex.packaging||0)+(+ex.commission||0)+(+ex.discount||0)+(+ex.other||0);
+  const orderProfit=revenue-prodCost-totalExp;
+  return{revenue,prodCost,bgRev,totalExp,orderProfit,totalProfit:orderProfit+bgRev};
+}
+
+function renderOrderForm(){
+  const {revenue,prodCost,bgRev,totalExp,orderProfit,totalProfit}=calcForm();
+  const prodSelect=(value,onchange)=>`<select class="inp" style="flex:1" onchange="${onchange}">${['纖體','大健康','美肌'].map(cat=>`<optgroup label="── ${cat} ──">${PRODUCTS.filter(p=>p.cat===cat).map(p=>`<option value="${esc(p.name)}" ${p.name===value?'selected':''}>${esc(p.name)}</option>`).join('')}</optgroup>`).join('')}</select>`;
+
+  // A 客戶資料
+  const secA=section('A  客戶資料',
+    `<div class="inp-wrap"><label class="inp-label">日期</label><input class="inp" type="date" value="${FORM.date}" onchange="FORM.date=this.value;renderModal()"></div>`+
+    `<div class="inp-wrap"><label class="inp-label">客戶姓名</label><input class="inp" type="text" placeholder="請輸入姓名" value="${esc(FORM.customer)}" oninput="FORM.customer=this.value"></div>`+
+    `<div class="inp-wrap"><label class="inp-label">電話</label><input class="inp" type="tel" placeholder="選填" value="${esc(FORM.contact||'')}" oninput="FORM.contact=this.value"></div>`+
+    `<div class="inp-wrap"><label class="inp-label">來源 / 級別</label><div class="flex flex-wrap gap-2">${ORDER_SOURCES.map(s=>`<button onclick="setFormSource('${s}')" style="padding:6px 12px;border-radius:10px;font-size:12px;font-weight:500;border:1px solid ${FORM.source===s?C.brand:C.border};background:${FORM.source===s?C.brandLt:'#fff'};color:${FORM.source===s?C.brandDk:C.muted};cursor:pointer">${s}</button>`).join('')}</div></div>`+
+    `<div class="inp-wrap"><label class="inp-label">出貨方式</label><div class="flex flex-wrap gap-2">${SHIPPING_OPTS.map(s=>`<button onclick="setFormShipping('${s}')" style="padding:8px 12px;border-radius:10px;font-size:13px;font-weight:500;border:1px solid ${FORM.shipping===s?C.brand:C.border};background:${FORM.shipping===s?C.brandLt:'#fff'};color:${FORM.shipping===s?C.brandDk:C.muted};cursor:pointer">${s}</button>`).join('')}</div></div>`+
+    `<div class="inp-wrap" style="margin-bottom:0"><label class="inp-label">付款方式</label><div class="grid2">${PAYMENT_OPTS.map(p=>`<button onclick="FORM.payment='${p}';renderModal()" style="padding:8px;border-radius:10px;font-size:12px;font-weight:500;border:1px solid ${FORM.payment===p?C.brand:C.border};background:${FORM.payment===p?C.brandLt:'#fff'};color:${FORM.payment===p?C.brandDk:C.muted};cursor:pointer">${p}</button>`).join('')}</div></div>`
+  );
+
+  // B+C 商品
+  const secBC=section('B + C  主購 & VIP加購商品',
+    `<div class="space-y-3">${FORM.items.map((item,i)=>`<div class="item-box"><div class="flex gap-2" style="margin-bottom:8px">${prodSelect(item.name,`updateItem(${i},'name',this.value)`)}${FORM.items.length>1?`<button onclick="removeItem(${i})" style="width:28px;height:28px;border-radius:50%;background:#F0D8D8;color:var(--loss);border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">${svg(ICONS.x,12)}</button>`:''}</div><div class="grid3"><div><label class="inp-label">數量</label><input class="inp" type="number" min="1" value="${item.qty}" oninput="updateItem(${i},'qty',this.value)"></div><div><label class="inp-label">售價</label><input class="inp" type="number" value="${item.price}" oninput="updateItem(${i},'price',this.value)"></div><div><label class="inp-label">成本</label><input class="inp" type="number" value="${item.cost}" readonly style="background:var(--warm)"></div></div><p style="font-size:12px;color:var(--muted);margin-top:6px">小計 <strong style="color:var(--text)">${fmt((+item.qty||0)*(+item.price||0))}</strong> · 成本 ${fmt((+item.qty||0)*(+item.cost||0))}</p></div>`).join('')}<button onclick="addItem()" class="btn btn-secondary btn-sm w-full" style="margin-top:4px">${svg(ICONS.plus,12)} 加商品</button></div>`,
+    '#7A9E7E'
+  );
+
+  // E 老闆搭贈
+  const secE=section('E  老闆活動搭贈（成本$0，計搭贈收益）',
+    FORM.bossGifts.length===0?`<p style="font-size:12px;text-align:center;padding:8px;color:var(--hint)">老闆搭贈給我賣出去的商品，純收益</p>`:
+    `<div class="space-y-2">${FORM.bossGifts.map((g,i)=>`<div class="item-box" style="background:#F7F5FF"><div class="flex gap-2" style="margin-bottom:8px">${prodSelect(g.name,`updateBossGift(${i},'name',this.value)`)}<button onclick="removeBossGift(${i})" style="width:28px;height:28px;border-radius:50%;background:#F0D8D8;color:var(--loss);border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">${svg(ICONS.x,12)}</button></div><div class="grid2"><div><label class="inp-label">數量</label><input class="inp" type="number" min="1" value="${g.qty}" oninput="updateBossGift(${i},'qty',this.value)"></div><div><label class="inp-label">我的售價</label><input class="inp" type="number" value="${g.price}" oninput="updateBossGift(${i},'price',this.value)"></div></div><p style="font-size:12px;color:#9088B8;margin-top:6px">搭贈收益 <strong>${fmt((+g.qty||0)*(+g.price||0))}</strong>（成本$0）</p></div>`).join('')}</div>`,
+    '#9088B8',`<button onclick="addBossGift()" style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:4px 8px;border-radius:8px;background:#F0EEF7;color:#9088B8;border:none;cursor:pointer">${svg(ICONS.plus,11)} 新增搭贈</button>`
+  );
+
+  // F 訂單支出
+  const secF=section('F  訂單支出',
+    `<div class="grid2">${[['shipping','運費（自動）'],['packaging','包材費'],['commission','手續費/利息'],['discount','折扣'],['other','其他支出']].map(([k,l])=>`<div><label class="inp-label">${l}</label><input class="inp" type="number" value="${FORM.expenses[k]||0}" oninput="FORM.expenses['${k}']=this.value;updateSummary()"></div>`).join('')}</div>`,
+    C.loss
+  );
+
+  // G 總結
+  const secG=`<div class="summary-card"><div class="summary-header"><span>G  訂單總結（即時）</span></div><div class="section-body" id="order-summary-card"><div class="summary-row"><span style="color:var(--sub)">客人付款</span><strong style="color:var(--text)">${fmt(revenue)}</strong></div><div class="summary-row"><span style="color:var(--sub)">商品成本</span><span style="color:var(--loss)">－${fmt(prodCost)}</span></div>${totalExp>0?`<div class="summary-row"><span style="color:var(--sub)">訂單支出</span><span style="color:var(--loss)">－${fmt(totalExp)}</span></div>`:''}<hr class="summary-divider"><div class="summary-row"><span style="font-weight:600;color:var(--text)">訂單淨利</span><span style="font-weight:600;color:${orderProfit>=0?C.profit:C.loss}">${fmt(orderProfit)}</span></div>${bgRev>0?`<div class="summary-row"><span style="color:#9088B8">老闆搭贈收益</span><span style="color:#9088B8">＋${fmt(bgRev)}</span></div><hr class="summary-divider"><div class="summary-row" style="font-size:16px;font-weight:700"><span style="color:var(--text)">總淨利</span><span style="color:${totalProfit>=0?C.profit:C.loss}">${fmt(totalProfit)}</span></div>`:''}</div></div>`;
+
+  const noteInp=`<div class="inp-wrap"><label class="inp-label">備註</label><input class="inp" type="text" placeholder="選填" value="${esc(FORM.note||'')}" oninput="FORM.note=this.value"></div>`;
+  const btns=`<div class="flex gap-2"><button onclick="saveOrderForm()" class="btn btn-grad" style="flex:1;padding:12px">儲存訂單</button><button onclick="closeModal()" class="btn btn-secondary" style="flex:1;padding:12px">取消</button></div>`;
+
+  return `<div style="overflow-y:auto;max-height:75vh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain">${secA}${secBC}${secE}${secF}${secG}${noteInp}${btns}</div>`;
+}
+
+function setFormSource(src){FORM.source=src;FORM.items=FORM.items.map(i=>({...i,price:getPrice(i.name,src)||i.price}));FORM.bossGifts=FORM.bossGifts.map(g=>({...g,price:getPrice(g.name,src)||g.price}));renderModal();}
+function setFormShipping(s){FORM.shipping=s;FORM.expenses.shipping=SHIPPING_FEE[s]||0;renderModal();}
+function addItem(){FORM.items.push({name:'纖纖飲',qty:1,price:getPrice('纖纖飲',FORM.source),cost:getCost('纖纖飲')});renderModal();}
+function removeItem(i){FORM.items.splice(i,1);renderModal();}
+function updateItem(i,k,v){FORM.items[i][k]=v;if(k==='name'){FORM.items[i].price=getPrice(v,FORM.source);FORM.items[i].cost=getCost(v);renderModal();}else{updateSummary();}}
+function addBossGift(){FORM.bossGifts.push({name:'纖纖飲',qty:1,price:getPrice('纖纖飲',FORM.source),cost:0});renderModal();}
+function removeBossGift(i){FORM.bossGifts.splice(i,1);renderModal();}
+function updateBossGift(i,k,v){FORM.bossGifts[i][k]=v;if(k==='name'){FORM.bossGifts[i].price=getPrice(v,FORM.source);renderModal();}else{updateSummary();}}
+
+function updateSummary(){
+  try{
+    const revenue=FORM.items.reduce((s,i)=>s+(+i.qty||0)*(+i.price||0),0);
+    const prodCost=FORM.items.reduce((s,i)=>s+(+i.qty||0)*(+i.cost||0),0);
+    const bgRev=FORM.bossGifts.reduce((s,g)=>s+(+g.qty||0)*(+g.price||0),0);
+    const ex=FORM.expenses;
+    const totalExp=(+ex.shipping||0)+(+ex.packaging||0)+(+ex.commission||0)+(+ex.discount||0)+(+ex.other||0);
+    const orderProfit=revenue-prodCost-totalExp;
+    const totalProfit=orderProfit+bgRev;
+    // 更新每個商品小計
+    FORM.items.forEach((item,i)=>{
+      const el=document.querySelector('[data-item-subtotal="'+i+'"]');
+      if(el){
+        const subTotal=(+item.qty||0)*(+item.price||0);
+        const subCost=(+item.qty||0)*(+item.cost||0);
+        el.innerHTML='小計 <strong style="color:var(--text)">'+fmt(subTotal)+'</strong> · 成本 '+fmt(subCost);
+      }
+    });
+    // 更新 summary card
+    const summaryEl=document.getElementById('order-summary-card');
+    if(summaryEl){
+      const profitColor=orderProfit>=0?'var(--profit)':'var(--loss)';
+      let html='<div class="flex justify-between" style="font-size:14px;margin-bottom:8px"><span style="color:var(--sub)">客人付款</span><strong style="color:var(--text)">'+fmt(revenue)+'</strong></div>';
+      html+='<div class="flex justify-between" style="font-size:14px;margin-bottom:8px"><span style="color:var(--sub)">商品成本</span><span style="color:var(--loss)">－'+fmt(prodCost)+'</span></div>';
+      if(totalExp>0)html+='<div class="flex justify-between" style="font-size:14px;margin-bottom:8px"><span style="color:var(--sub)">訂單支出</span><span style="color:var(--loss)">－'+fmt(totalExp)+'</span></div>';
+      html+='<hr style="border:none;border-top:1px solid var(--border-lt);margin:8px 0">';
+      html+='<div class="flex justify-between" style="font-size:14px;font-weight:600;margin-bottom:8px"><span style="color:var(--text)">訂單淨利</span><span style="color:'+profitColor+'">'+fmt(orderProfit)+'</span></div>';
+      if(bgRev>0){
+        html+='<div class="flex justify-between" style="font-size:14px;margin-bottom:8px"><span style="color:#9088B8">老闆搭贈收益</span><span style="color:#9088B8">＋'+fmt(bgRev)+'</span></div>';
+        html+='<hr style="border:none;border-top:1px solid var(--border);margin:8px 0">';
+        const tpColor=totalProfit>=0?'var(--profit)':'var(--loss)';
+        html+='<div class="flex justify-between" style="font-size:16px;font-weight:700"><span style="color:var(--text)">總淨利</span><span style="color:'+tpColor+'">'+fmt(totalProfit)+'</span></div>';
+      }
+      summaryEl.innerHTML=html;
+    }
+  }catch(e){console.log('updateSummary error:',e);}
+}
+function saveOrderForm(){
+  const o=calcOrder({...FORM,id:STATE.editOrder?STATE.editOrder.id:Date.now(),trackDays:STATE.editOrder?STATE.editOrder.trackDays:[1,3,7,14,28],trackDone:STATE.editOrder?STATE.editOrder.trackDone:[]});
+  if(STATE.editOrder)STATE.orders=STATE.orders.map(x=>x.id===o.id?o:x);
+  else STATE.orders=[o,...STATE.orders];
+  STATE.showOrderForm=false;STATE.editOrder=null;debounceSave();renderModal();renderPage();
+}
+function delOrder(id){STATE.ordersDelId=id;renderModal();}
+function confirmDelOrder(){STATE.orders=STATE.orders.filter(o=>o.id!==STATE.ordersDelId);STATE.ordersDelId=null;debounceSave();renderModal();renderPage();}
+function toggleTrack(id,day){STATE.orders=STATE.orders.map(o=>{if(o.id!==id)return o;const d=o.trackDone||[];return{...o,trackDone:d.includes(day)?d.filter(x=>x!==day):[...d,day]};});debounceSave();renderPage();}
+
+// ── 搭贈收益 ───────────────────────────────────────────────────
+function renderGifts(){
+  const allBG=[];
+  STATE.orders.forEach(o=>(o.bossGifts||[]).forEach(g=>allBG.push({...g,date:o.date,customer:o.customer})));
+  const total=allBG.reduce((s,g)=>s+(+g.qty||0)*(+g.price||0),0);
+  const mRev=allBG.filter(g=>g.date.startsWith(STATE.dashVm)).reduce((s,g)=>s+(+g.qty||0)*(+g.price||0),0);
+  const prodMap={};allBG.forEach(g=>{prodMap[g.name]=(prodMap[g.name]||0)+(+g.qty||0)*(+g.price||0);});
+  const prodRank=Object.entries(prodMap).sort((a,b)=>b[1]-a[1]);
+  const maxV=prodRank[0]?.[1]||1;
+  return `<div class="space-y-4">`+
+    `<div class="grid2">${kpiCard('本月搭贈收益',fmt(mRev),'老闆活動搭贈','#9088B8')}${kpiCard('累積搭贈收益',fmt(total),'全部訂單',C.profit)}</div>`+
+    card(`<p style="font-size:13px;font-weight:600;color:var(--sub);margin-bottom:8px">說明</p><p style="font-size:12px;color:var(--muted);line-height:1.8">搭贈收益 = 老闆活動搭贈給我的商品 × 我的售價<br>成本 = $0（老闆免費提供）<br>在新增記帳的「E 老闆活動搭贈」區塊中新增</p>`)+
+    (prodRank.length?card(`<p style="font-size:13px;font-weight:600;color:var(--sub);margin-bottom:12px">搭贈收益排行</p><div class="space-y-3">${prodRank.map(([name,val])=>`<div><div class="flex justify-between" style="font-size:12px;margin-bottom:4px"><span style="color:var(--text)">${esc(name)}</span><span style="color:#9088B8;font-weight:600">${fmt(val)}</span></div><div style="height:8px;background:var(--warm);border-radius:4px"><div style="height:100%;width:${pct(val,maxV)}%;background:#9088B8;border-radius:4px"></div></div></div>`).join('')}</div>`):'')+
+    (allBG.length?`<div class="space-y-2">${allBG.slice().sort((a,b)=>b.date.localeCompare(a.date)).map((g,i)=>`<div class="card p-3"><div class="flex justify-between items-center"><div><div class="flex items-center gap-2"><span style="font-weight:600;font-size:14px;color:var(--text)">${esc(g.customer)}</span>${chip('搭贈','muted')}</div><p style="font-size:12px;color:var(--muted);margin-top:2px">${esc(g.date)} · ${esc(g.name)} × ${g.qty}</p></div><span style="font-weight:600;color:#9088B8">${fmt((+g.qty||0)*(+g.price||0))}</span></div></div>`).join('')}</div>`:
+    `<div class="card p-8 text-center"><p style="color:var(--muted)">目前沒有搭贈記錄</p></div>`)+
+  `</div>`;
+}
+
+// ── 月淨利分析 ─────────────────────────────────────────────────
+function renderMonthly(){
+  const {orders,expenses,monthlyVm:vm}=STATE;
+  const allM={};
+  orders.forEach(o=>{const mo=o.date.slice(0,7);if(!allM[mo])allM[mo]={sales:0,cP:0,tP:0,gP:0,exp:0};allM[mo].sales+=o.revenue||0;const p=o.orderProfit||0,b=o.bossGiftRevenue||0;if(isTeam(o.source))allM[mo].tP+=p;else allM[mo].cP+=p;allM[mo].gP+=b;});
+  expenses.forEach(e=>{const mo=e.date.slice(0,7);if(!allM[mo])allM[mo]={sales:0,cP:0,tP:0,gP:0,exp:0};allM[mo].exp+=e.amount;});
+  const mv=allM[vm]||{sales:0,cP:0,tP:0,gP:0,exp:0};
+  const mNet=mv.cP+mv.tP+mv.gP-mv.exp;
+  const mO=orders.filter(o=>o.date.startsWith(vm));
+  const prodMap={};mO.forEach(o=>(o.items||[]).forEach(i=>{prodMap[i.name]=(prodMap[i.name]||0)+(+i.qty||0)*(+i.price||0);}));
+  const prodTotal=Object.values(prodMap).reduce((a,b)=>a+b,0);
+  const top5=Object.entries(prodMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const CHART=['#C4A882','#A8BBA5','#B5ABCA','#96AFBF','#C9B4A0'];
+  const monthList=Object.entries(allM).sort((a,b)=>b[0].localeCompare(a[0]));
+  const mnav=`<div class="month-nav"><button class="month-btn" onclick="prevMonth('monthlyVm')">${svg(ICONS.chevLeft)}</button><span class="month-label">${vm}</span><button class="month-btn" onclick="nextMonth('monthlyVm')">${svg(ICONS.chevRight)}</button></div>`;
+  return mnav+`<div class="space-y-4">`+
+    `<div class="grid2">${kpiCard('客戶淨利',fmt(mv.cP),'',C.brand)}${kpiCard('團隊淨利',fmt(mv.tP),'',C.profit)}</div>`+
+    `<div class="grid2">${kpiCard('搭贈收益',fmt(mv.gP),'','#9088B8')}${kpiCard('支出',fmt(mv.exp),'',C.loss)}</div>`+
+    `<div class="card p-4" style="background:linear-gradient(135deg,${C.brandLt},#fff)"><div class="flex justify-between items-center"><div><p style="font-size:12px;color:var(--sub)">${vm} 月淨利</p><p style="font-size:24px;font-weight:700;color:${mNet>=0?C.profit:C.loss};margin-top:4px">${fmt(mNet)}</p></div><div style="text-align:right;font-size:12px;color:var(--muted)"><p>客戶 ${fmt(mv.cP)}</p><p>團隊 ${fmt(mv.tP)}</p><p>+搭贈 ${fmt(mv.gP)}</p><p>-支出 ${fmt(mv.exp)}</p></div></div></div>`+
+    (top5.length?card(`<p style="font-size:13px;font-weight:600;color:var(--sub);margin-bottom:12px">商品 Top 5</p><div class="space-y-3">${top5.map(([name,val],i)=>`<div><div class="flex justify-between" style="font-size:12px;margin-bottom:4px"><span style="color:var(--text)">${['1.','2.','3.','4.','5.'][i]} ${esc(name)}</span><span style="color:var(--muted)">${fmt(val)} · ${prodTotal?Math.round(val/prodTotal*100):0}%</span></div><div style="height:8px;background:var(--warm);border-radius:4px"><div style="height:100%;width:${prodTotal?pct(val,prodTotal):0}%;background:${CHART[i]};border-radius:4px"></div></div></div>`).join('')}</div>`):'')+
+    card(`<p style="font-size:13px;font-weight:600;color:var(--sub);margin-bottom:12px">月淨利彙整總表</p><div class="overflow-x-auto"><table style="width:100%;font-size:12px;border-collapse:collapse;min-width:320px"><thead><tr style="color:var(--muted)"><th style="text-align:left;padding:6px 4px">月份</th><th style="text-align:right;padding:6px 4px">客戶</th><th style="text-align:right;padding:6px 4px">團隊</th><th style="text-align:right;padding:6px 4px">支出</th><th style="text-align:right;padding:6px 4px;color:var(--brand-dk)">月淨利</th></tr></thead><tbody>${monthList.map(([mo,v])=>{const net=v.cP+v.tP+v.gP-v.exp,active=mo===vm;return`<tr onclick="setMonthlyVm('${mo}')" style="border-top:1px solid var(--border-lt);cursor:pointer;background:${active?C.brandLt:'transparent'}"><td style="padding:6px 4px;font-weight:600;color:${active?C.brandDk:C.text}">${mo}${active?' ◀':''}</td><td style="padding:6px 4px;text-align:right;color:var(--brand)">${fmt(v.cP)}</td><td style="padding:6px 4px;text-align:right;color:var(--profit)">${fmt(v.tP)}</td><td style="padding:6px 4px;text-align:right;color:var(--muted)">-${fmt(v.exp)}</td><td style="padding:6px 4px;text-align:right;font-weight:700;color:${net>=0?C.profit:C.loss}">${fmt(net)}</td></tr>`;}).join('')}</tbody></table></div>`)+
+  `</div>`;
+}
+
+// ── 商品管理 ───────────────────────────────────────────────────
+function renderProductsPage(){
+  return `<div class="space-y-3">${PRODUCTS.map(p=>{const zp=p.prices['零售']||0;const m=zp&&p.cost?Math.round((zp-p.cost)/zp*100):0;return`<div class="card p-3"><div class="flex justify-between items-start"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span style="font-weight:600;font-size:14px;color:var(--text)">${esc(p.name)}</span>${chip(p.cat)}</div><div class="grid3" style="margin-top:8px"><div><p style="font-size:11px;color:var(--muted)">成本</p><p style="font-weight:600;font-size:13px;color:var(--text)">${fmt(p.cost)}</p></div><div><p style="font-size:11px;color:var(--muted)">零售</p><p style="font-weight:600;font-size:13px;color:var(--text)">${fmt(zp)}</p></div><div><p style="font-size:11px;color:var(--muted)">毛利率</p><p style="font-weight:600;font-size:13px;color:var(--profit)">${m}%</p></div></div></div></div></div>`;}).join('')}</div>`;
+}
+
+// ── 客戶資料 ───────────────────────────────────────────────────
+let CUST_FORM={name:'',phone:'',pickup:'全家',products:[],account:'',note:''};
+function renderCustomers(){
+  const {customers:custs,customerSearch:search}=STATE;
+  const filtered=custs.filter(c=>c.name.includes(search)||(c.phone||'').includes(search)||(c.account||'').includes(search));
+  return `<div class="space-y-4">`+
+    `<div class="flex gap-2"><div style="flex:1;position:relative"><input class="inp" placeholder="搜尋姓名、電話或帳號" value="${esc(search)}" oninput="setState('customerSearch',this.value);renderPage()" style="padding-left:32px"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)">⌕</span></div><button class="btn btn-primary btn-sm" onclick="openCustForm()">${svg(ICONS.plus,12)} 新增</button></div>`+
+    `<div class="grid4">${[['總計',custs.length,C.brand],['711',custs.filter(c=>c.pickup==='711').length,C.profit],['全家',custs.filter(c=>c.pickup==='全家').length,C.brand],['宅配',custs.filter(c=>c.pickup==='宅配').length,C.brandDk]].map(([l,v,a])=>`<div class="card p-3 text-center"><p style="font-size:11px;color:var(--muted)">${l}</p><p style="font-size:18px;font-weight:700;color:${a}">${v}</p></div>`).join('')}</div>`+
+    `<div class="space-y-2">${filtered.map(c=>{const oCnt=STATE.orders.filter(o=>o.customer===c.name).length;return`<div class="card p-3"><div class="flex items-start justify-between gap-2"><div class="flex items-start gap-3 flex-1"><div style="width:36px;height:36px;border-radius:50%;background:var(--brand-lt);color:var(--brand-dk);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${esc(c.name[0])}</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span style="font-weight:600;font-size:14px;color:var(--text)">${esc(c.name)}</span>${chip(c.pickup)}</div>${c.phone?`<p style="font-size:12px;color:var(--muted);margin-top:2px">📞 ${esc(c.phone)}</p>`:''} ${c.account?`<p style="font-size:12px;color:var(--brand);margin-top:2px">@ ${esc(c.account)}</p>`:''} ${(c.products||[]).length?`<div class="flex flex-wrap gap-1" style="margin-top:6px">${c.products.map(p=>`<span style="padding:2px 8px;border-radius:99px;font-size:11px;background:var(--warm);color:var(--sub)">${esc(p)}</span>`).join('')}</div>`:''} ${oCnt>0?`<p style="font-size:11px;color:var(--hint);margin-top:4px">關聯 ${oCnt} 筆訂單</p>`:''}</div></div><div style="display:flex;flex-direction:column;gap:4px"><button class="btn btn-sm btn-secondary" onclick="openEditCust(${c.id})">${svg(ICONS.edit,12)}</button><button class="btn btn-sm btn-danger" onclick="setCustDel(${c.id},'${esc(c.name)}')">${svg(ICONS.trash,12)}</button></div></div></div>`;}).join('')}${filtered.length===0?`<div class="card p-8 text-center"><p style="color:var(--muted)">找不到符合的客戶</p></div>`:''}</div>`+
+  `</div>`;
+}
+function openCustForm(){STATE.editCust=null;CUST_FORM={name:'',phone:'',pickup:'全家',products:[],account:'',note:''};STATE.showCustForm=true;renderModal();}
+function openEditCust(id){STATE.editCust=STATE.customers.find(c=>c.id===id);if(!STATE.editCust)return;CUST_FORM={...STATE.editCust,products:[...(STATE.editCust.products||[])]};STATE.showCustForm=true;renderModal();}
+function setCustDel(id,name){STATE.custDelTarget={id,name};renderModal();}
+function confirmDelCust(){
+  const name=STATE.custDelTarget.name;
+  STATE.orders=STATE.orders.filter(o=>o.customer!==name);
+  STATE.expenses=STATE.expenses.filter(e=>e.customer!==name&&!(e.note||'').includes(name));
+  STATE.customers=STATE.customers.filter(c=>c.id!==STATE.custDelTarget.id);
+  STATE.custDelTarget=null;debounceSave();renderModal();renderPage();
+}
+function toggleCustProd(name){if(CUST_FORM.products.includes(name))CUST_FORM.products=CUST_FORM.products.filter(x=>x!==name);else CUST_FORM.products=[...CUST_FORM.products,name];renderModal();}
+function saveCust(){
+  if(!CUST_FORM.name.trim())return;
+  const c={...CUST_FORM};
+  if(STATE.editCust)STATE.customers=STATE.customers.map(x=>x.id===STATE.editCust.id?{...c,id:x.id}:x);
+  else STATE.customers=[{...c,id:Date.now()},...STATE.customers];
+  STATE.showCustForm=false;STATE.editCust=null;debounceSave();renderModal();renderPage();
+}
+function renderCustForm(){
+  return `<div>`+
+    `<div class="inp-wrap"><label class="inp-label">姓名 *</label><input class="inp" type="text" placeholder="請輸入姓名" value="${esc(CUST_FORM.name)}" oninput="CUST_FORM.name=this.value"></div>`+
+    `<div class="inp-wrap"><label class="inp-label">電話</label><input class="inp" type="tel" placeholder="選填" value="${esc(CUST_FORM.phone||'')}" oninput="CUST_FORM.phone=this.value"></div>`+
+    `<div class="inp-wrap"><label class="inp-label">帳號 (IG / LINE)</label><input class="inp" type="text" placeholder="選填" value="${esc(CUST_FORM.account||'')}" oninput="CUST_FORM.account=this.value"></div>`+
+    `<div class="inp-wrap"><label class="inp-label">取貨方式</label><div class="flex gap-2">${['711','全家','宅配'].map(p=>`<button onclick="CUST_FORM.pickup='${p}';renderModal()" style="flex:1;padding:8px;border-radius:10px;font-size:13px;font-weight:500;border:1px solid ${CUST_FORM.pickup===p?C.brand:C.border};background:${CUST_FORM.pickup===p?C.brandLt:'#fff'};color:${CUST_FORM.pickup===p?C.brandDk:C.muted};cursor:pointer">${p}</button>`).join('')}</div></div>`+
+    `<div class="inp-wrap"><label class="inp-label">購買產品（可多選）</label><div class="flex flex-wrap gap-2">${PRODUCTS.map(p=>`<button onclick="toggleCustProd('${esc(p.name)}')" style="padding:6px 10px;border-radius:10px;font-size:11px;font-weight:500;border:1px solid ${CUST_FORM.products.includes(p.name)?C.brand:C.border};background:${CUST_FORM.products.includes(p.name)?C.brandLt:'#fff'};color:${CUST_FORM.products.includes(p.name)?C.brandDk:C.muted};cursor:pointer;margin-bottom:4px">${esc(p.name)}</button>`).join('')}</div></div>`+
+    `<div class="inp-wrap"><label class="inp-label">備註</label><input class="inp" type="text" placeholder="門市地址等" value="${esc(CUST_FORM.note||'')}" oninput="CUST_FORM.note=this.value"></div>`+
+    `<div class="flex gap-2"><button onclick="saveCust()" class="btn btn-primary" style="flex:1">儲存</button><button onclick="closeModal()" class="btn btn-secondary" style="flex:1">取消</button></div>`+
+  `</div>`;
+}
+
+// ── 支出管理 ───────────────────────────────────────────────────
+const FIXED_ITEMS=[{key:'711運費',label:'711運費',unit:38,cat:'運費'},{key:'全家運費',label:'全家運費',unit:35,cat:'運費'},{key:'宅配運費',label:'宅配運費',unit:60,cat:'運費'},{key:'耗材',label:'耗材(DM/小卡/箱子)',unit:20,cat:'耗材'}];
+let EXP_FORM={date:today,category:'廣告',amount:'',note:''};
+function renderExpenses(){
+  const {expenses,expTab:tab,expQDate:qDate,expQty:qtyMap}=STATE;
+  const thisMonth=today.slice(0,7);
+  const mExp=expenses.filter(e=>e.date.startsWith(thisMonth));
+  const total=mExp.reduce((s,e)=>s+e.amount,0);
+  const catMap=mExp.reduce((a,e)=>{a[e.category]=(a[e.category]||0)+e.amount;return a;},{});
+  const tabs=`<div class="tabs"><button class="tab${tab==='quick'?' active':''}" onclick="setState('expTab','quick');renderPage()">快速記帳</button><button class="tab${tab==='manual'?' active':''}" onclick="setState('expTab','manual');renderPage()">其他支出</button><button class="tab${tab==='list'?' active':''}" onclick="setState('expTab','list');renderPage()">明細列表</button></div>`;
+  const kpis=`<div class="grid2" style="margin-bottom:12px">${kpiCard('本月支出',fmt(total),'',C.loss)}${kpiCard('運費+耗材',fmt((catMap['運費']||0)+(catMap['耗材']||0)),'',C.brand)}</div>`;
+  if(tab==='quick'){
+    const quickTotal=FIXED_ITEMS.reduce((s,f)=>s+f.unit*(+qtyMap[f.key]||0),0);
+    return kpis+tabs+card(`<p style="font-size:13px;font-weight:600;color:var(--sub);margin-bottom:12px">固定費用快速記帳</p><div class="inp-wrap"><label class="inp-label">日期</label><input class="inp" type="date" value="${qDate}" onchange="setState('expQDate',this.value)"></div><div class="space-y-3" style="margin-bottom:16px">${FIXED_ITEMS.map(f=>`<div class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--warm)"><div style="flex:1"><p style="font-size:14px;font-weight:500;color:var(--text)">${f.label}</p><p style="font-size:12px;color:var(--muted)">單價 $${f.unit}/件</p></div><div class="flex items-center gap-2"><button onclick="decQty('${f.key}')" style="width:28px;height:28px;border-radius:50%;background:var(--brand-lt);color:var(--brand-dk);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">−</button><input type="number" min="0" value="${qtyMap[f.key]||''}" placeholder="0" oninput="setQty('${f.key}',this.value)" style="width:52px;text-align:center;padding:4px 8px;border:1px solid var(--border);border-radius:10px;font-size:14px"></div><span style="font-size:13px;font-weight:600;width:64px;text-align:right;color:var(--text)">${+qtyMap[f.key]>0?fmt(f.unit*(+qtyMap[f.key])):'—'}</span></div>`).join('')}</div><div class="flex justify-between items-center p-3 rounded-xl" style="background:var(--warm);margin-bottom:12px"><span style="font-size:14px;font-weight:500;color:var(--sub)">本次合計</span><span style="font-size:18px;font-weight:700;color:var(--brand-dk)">${fmt(quickTotal)}</span></div><button onclick="saveQuick()" class="btn ${quickTotal>0?'btn-primary':'btn-secondary'} w-full">${quickTotal>0?'儲存 '+fmt(quickTotal):'請輸入件數'}</button>`);
+  }
+  if(tab==='manual'){
+    return kpis+tabs+card(`<p style="font-size:13px;font-weight:600;color:var(--sub);margin-bottom:12px">手動新增支出</p><div class="inp-wrap"><label class="inp-label">日期</label><input class="inp" type="date" value="${EXP_FORM.date}" onchange="EXP_FORM.date=this.value"></div><div class="inp-wrap"><label class="inp-label">分類</label><select class="inp" onchange="EXP_FORM.category=this.value">${['廣告','直播設備','生活費','補貨','包材','信用卡','還款','其他'].map(c=>`<option ${c===EXP_FORM.category?'selected':''}>${c}</option>`).join('')}</select></div><div class="inp-wrap"><label class="inp-label">金額</label><input class="inp" type="number" placeholder="輸入金額" value="${EXP_FORM.amount}" oninput="EXP_FORM.amount=this.value"></div><div class="inp-wrap"><label class="inp-label">備註</label><input class="inp" type="text" placeholder="選填" value="${esc(EXP_FORM.note||'')}" oninput="EXP_FORM.note=this.value"></div><button onclick="saveManualExp()" class="btn btn-primary w-full">儲存</button>`);
+  }
+  return kpis+tabs+`<div class="space-y-2">${expenses.map(e=>`<div class="card p-3"><div class="flex items-center justify-between"><div><div class="flex items-center gap-2">${chip(e.category)}${e.note?`<span style="font-size:12px;color:var(--muted)">${esc(e.note)}</span>`:''}</div><p style="font-size:12px;color:var(--muted);margin-top:2px">${e.date}</p></div><div class="flex items-center gap-2"><span style="font-weight:600;color:var(--text)">${fmt(e.amount)}</span><button onclick="delExp(${e.id})" style="width:24px;height:24px;border-radius:50%;background:#F0D8D8;color:var(--loss);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">${svg(ICONS.x,11)}</button></div></div></div>`).join('')}${expenses.length===0?`<div class="card p-8 text-center"><p style="color:var(--muted)">尚無支出記錄</p></div>`:''}</div>`;
+}
+function decQty(k){STATE.expQty[k]=Math.max(0,(+STATE.expQty[k]||0)-1);renderPage();}
+function incQty(k){STATE.expQty[k]=(+STATE.expQty[k]||0)+1;renderPage();}
+function setQty(k,v){STATE.expQty[k]=v;renderPage();}
+function saveQuick(){const items=FIXED_ITEMS.filter(f=>+STATE.expQty[f.key]>0).map(f=>({id:Date.now()+Math.random(),date:STATE.expQDate,category:f.cat,amount:f.unit*(+STATE.expQty[f.key]),note:f.label+' × '+STATE.expQty[f.key]+'件'}));if(!items.length)return;STATE.expenses=[...items,...STATE.expenses];STATE.expQty={'711運費':'','全家運費':'','宅配運費':'','耗材':''};debounceSave();renderPage();}
+function saveManualExp(){if(!EXP_FORM.amount)return;STATE.expenses=[{...EXP_FORM,amount:+EXP_FORM.amount,id:Date.now()},...STATE.expenses];EXP_FORM={date:today,category:'廣告',amount:'',note:''};debounceSave();renderPage();}
+function delExp(id){STATE.expenses=STATE.expenses.filter(e=>e.id!==id);debounceSave();renderPage();}
+
+// ── 目標追蹤 ───────────────────────────────────────────────────
+function renderGoals(){
+  const {orders,goalTarget:target,goalEditing:editing,goalTmp:tmp,monthlyVm:vm}=STATE;
+  const mP=orders.filter(o=>o.date.startsWith(vm)).reduce((s,o)=>s+(o.orderProfit||0)+(o.bossGiftRevenue||0),0);
+  const remain=ELITE_TARGET-ELITE_CURRENT;
+  const lastM=ELITE_MONTHLY[ELITE_MONTHLY.length-1]?.month||'2026-06';
+  const [ly,lm]=lastM.split('-').map(Number);
+  const remainMonths=(2027-ly)*12+(1-lm);
+  const needed=remainMonths>0?Math.ceil(remain/remainMonths):0;
+  return `<div class="space-y-4">`+
+    card(`<div class="flex items-center justify-between" style="margin-bottom:16px"><p style="font-size:13px;font-weight:600;color:var(--sub)">本月淨利目標</p>${editing?`<div class="flex items-center gap-2"><input type="number" value="${tmp}" oninput="STATE.goalTmp=this.value" style="width:100px;padding:4px 8px;border:1px solid var(--border);border-radius:8px;font-size:13px"><button onclick="STATE.goalTarget=+STATE.goalTmp;STATE.goalEditing=false;renderPage()" class="btn btn-primary btn-sm">確定</button><button onclick="STATE.goalEditing=false;renderPage()" style="font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer">取消</button></div>`:`<button onclick="STATE.goalEditing=true;STATE.goalTmp=String(STATE.goalTarget);renderPage()" style="font-size:12px;padding:4px 12px;border-radius:8px;border:1px solid var(--border);color:var(--sub);background:none;cursor:pointer">修改目標</button>`}</div>${pbar('本月淨利',mP,target)}<div class="grid3" style="margin-top:16px;gap:8px"><div style="border-radius:12px;padding:12px;text-align:center;background:var(--brand-lt)"><p style="font-size:11px;color:var(--sub);margin-bottom:4px">目標</p><p style="font-size:14px;font-weight:700;color:var(--brand-dk)">${fmt(target)}</p></div><div style="border-radius:12px;padding:12px;text-align:center;background:#EDF5EE"><p style="font-size:11px;color:var(--sub);margin-bottom:4px">已達成</p><p style="font-size:14px;font-weight:700;color:var(--profit)">${fmt(mP)}</p></div><div style="border-radius:12px;padding:12px;text-align:center;background:#EBF0F5"><p style="font-size:11px;color:var(--sub);margin-bottom:4px">還差</p><p style="font-size:14px;font-weight:700;color:var(--brand)">${fmt(Math.max(0,target-mP))}</p></div></div>`)+
+    `<div class="card p-4" style="background:linear-gradient(135deg,${C.brandLt},#fff3f0)"><div style="text-align:center;margin-bottom:16px"><div style="font-size:32px;margin-bottom:8px">👑</div><p style="font-size:17px;font-weight:700;color:var(--text)">菁英皇家 400 萬</p><p style="font-size:12px;color:var(--muted);margin-top:4px">2026年2月 ～ 2027年1月</p><p style="font-size:28px;font-weight:700;color:var(--brand-dk);margin-top:12px">${fmt(ELITE_CURRENT)}</p><p style="font-size:13px;color:var(--muted);margin-top:4px">距目標還差 ${fmt(remain)}</p></div>${pbar('累積進度',ELITE_CURRENT,ELITE_TARGET,C.brand)}<div class="grid2" style="margin-top:16px;gap:8px"><div style="border-radius:12px;padding:12px;text-align:center;background:white"><p style="font-size:11px;color:var(--sub);margin-bottom:4px">剩餘月數</p><p style="font-weight:700;color:var(--text)">${remainMonths} 個月</p></div><div style="border-radius:12px;padding:12px;text-align:center;background:white"><p style="font-size:11px;color:var(--sub);margin-bottom:4px">每月需達</p><p style="font-weight:700;color:var(--profit)">${fmt(needed)}</p></div></div><div style="margin-top:16px;border-radius:12px;overflow:hidden;border:1px solid var(--border-lt)"><div style="padding:8px 12px;background:var(--brand-lt)"><p style="font-size:12px;font-weight:600;color:var(--brand-dk)">各月叫貨明細</p></div>${ELITE_MONTHLY.map((m,i)=>`<div style="display:flex;justify-content:space-between;padding:8px 12px;border-top:1px solid var(--border-lt);background:${i%2?'#fff':C.bg}"><span style="font-size:12px;color:var(--sub)">${m.month}</span><span style="font-size:12px;font-weight:600;color:var(--text)">${fmt(m.amount)}</span></div>`).join('')}<div style="display:flex;justify-content:space-between;padding:10px 12px;border-top:1px solid var(--border);background:var(--brand-lt)"><span style="font-size:12px;font-weight:700;color:var(--brand-dk)">合計</span><span style="font-size:14px;font-weight:700;color:var(--brand-dk)">${fmt(ELITE_CURRENT)}</span></div></div></div>`+
+  `</div>`;
+}
+
+// ── Modal 渲染 ─────────────────────────────────────────────────
+function renderModal(){
+  let m=document.getElementById('modal-container');
+  if(!m){m=document.createElement('div');m.id='modal-container';document.body.appendChild(m);}
+  // 記住所有可能的滾動位置
+  const modalBox=m.querySelector('.modal-box');
+  const scrollTop=modalBox?modalBox.scrollTop:0;
+  const innerScroll=m.querySelector('[style*="overflow-y"]');
+  const innerScrollTop=innerScroll?innerScroll.scrollTop:0;
+  if(STATE.showOrderForm){
+    m.innerHTML=modal(STATE.editOrder?'編輯記帳':'新增記帳',renderOrderForm());
+    requestAnimationFrame(()=>{
+      const nb=m.querySelector('.modal-box');
+      if(nb&&scrollTop>0)nb.scrollTop=scrollTop;
+      const ni=m.querySelector('[style*="overflow-y"]');
+      if(ni&&innerScrollTop>0)ni.scrollTop=innerScrollTop;
+    });
+  } else if(STATE.ordersDelId){
+    m.innerHTML=modal('確認刪除',`<p class="confirm-msg">確定要刪除這筆記帳嗎？刪除後無法復原。</p><div class="flex gap-2"><button onclick="confirmDelOrder()" class="btn" style="flex:1;background:#C47A7A;color:#fff">確定刪除</button><button onclick="closeModal()" class="btn btn-secondary" style="flex:1">取消</button></div>`);
+  } else if(STATE.custDelTarget){
+    const {name}=STATE.custDelTarget;
+    const oCnt=STATE.orders.filter(o=>o.customer===name).length;
+    const bCnt=STATE.orders.filter(o=>o.customer===name).reduce((s,o)=>s+(o.bossGifts||[]).length,0);
+    const eCnt=STATE.expenses.filter(e=>e.customer===name).length;
+    const details=[`訂單記錄 ${oCnt} 筆（含商品、搭贈、支出明細）`,bCnt>0?`搭贈收益記錄 ${bCnt} 筆`:null,eCnt>0?`支出記錄 ${eCnt} 筆`:null,'Products Tracker 相關紀錄','Dashboard 與月淨利統計'].filter(Boolean).map(d=>`• ${d}`).join('\n');
+    m.innerHTML=modal('永久刪除客戶',`<p class="confirm-msg">此操作將永久刪除「${esc(name)}」及所有相關資料：\n${details}\n\n刪除後無法復原，是否確定？</p><div class="flex gap-2"><button onclick="confirmDelCust()" class="btn" style="flex:1;background:#C47A7A;color:#fff;padding:12px;border-radius:12px;font-weight:600">確認永久刪除</button><button onclick="closeModal()" class="btn btn-secondary" style="flex:1;padding:12px;border-radius:12px">取消</button></div>`);
+  } else if(STATE.showFinanceAccountModal&&STATE.editFinanceAccount){
+    m.innerHTML=modal('編輯帳戶',renderFinanceAccountModal());
+    requestAnimationFrame(()=>{
+      const nb3=m.querySelector('.modal-box');
+      if(nb3&&scrollTop>0)nb3.scrollTop=scrollTop;
+    });
+  } else if(STATE.showFinanceGoalModal){
+    m.innerHTML=modal(STATE.editFinanceGoal?'編輯目標':'新增目標',renderFinanceGoalModal());
+    requestAnimationFrame(()=>{
+      const nb4=m.querySelector('.modal-box');
+      if(nb4&&scrollTop>0)nb4.scrollTop=scrollTop;
+    });
+  } else if(STATE.financeDelGoalId){
+    m.innerHTML=modal('確認刪除',`<p class="confirm-msg">確定要刪除這個目標嗎？</p><div class="flex gap-2"><button onclick="confirmDelFinanceGoal()" class="btn" style="flex:1;background:#C47A7A;color:#fff">確定刪除</button><button onclick="closeModal()" class="btn btn-secondary" style="flex:1">取消</button></div>`);
+  } else if(STATE.showCustForm){
+    m.innerHTML=modal(STATE.editCust?'編輯客戶':'新增客戶',renderCustForm());
+    requestAnimationFrame(()=>{
+      const nb2=m.querySelector('.modal-box');
+      if(nb2&&scrollTop>0)nb2.scrollTop=scrollTop;
+    });
+  } else {
+    m.innerHTML='';
+  }
+}
+
+// ── 理財規劃 ───────────────────────────────────────────────────
+let FINANCE_ACCOUNT_FORM={name:'',current:'',monthly:'',target:'',color:'#C4A882'};
+let FINANCE_GOAL_FORM={name:'',target:'',current:''};
+
+function renderFinance(){
+  const {finance}=STATE;
+  const accounts=finance.accounts||[];
+  const goals=finance.goals||[];
+  const totalAsset=accounts.reduce((s,a)=>s+(+a.current||0),0);
+  const totalTarget=accounts.reduce((s,a)=>s+(+a.target||0),0);
+
+  const accountsHtml=accounts.map(a=>{
+    const cur=+a.current||0,tar=+a.target||0,mo=+a.monthly||0;
+    const remain=Math.max(0,tar-cur);
+    const p=tar?Math.min(100,Math.round(cur/tar*100)):0;
+    return `<div class="card p-4" style="margin-bottom:12px">
+      <div class="flex justify-between items-start" style="margin-bottom:12px">
+        <div class="flex items-center gap-2">
+          <div style="width:10px;height:10px;border-radius:50%;background:${a.color};flex-shrink:0"></div>
+          <span style="font-weight:700;font-size:16px;color:var(--text)">${esc(a.name)}</span>
+        </div>
+        <button onclick="openEditFinanceAccount('${a.id}')" style="font-size:12px;padding:4px 10px;border-radius:8px;border:1px solid var(--border);color:var(--sub);background:none;cursor:pointer">編輯</button>
+      </div>
+      <div class="grid3" style="margin-bottom:12px">
+        <div><p style="font-size:11px;color:var(--muted);margin-bottom:2px">目前金額</p><p style="font-weight:700;font-size:15px;color:var(--text)">${fmt(cur)}</p></div>
+        <div><p style="font-size:11px;color:var(--muted);margin-bottom:2px">每月存入</p><p style="font-weight:700;font-size:15px;color:var(--profit)">${fmt(mo)}</p></div>
+        <div><p style="font-size:11px;color:var(--muted);margin-bottom:2px">目標金額</p><p style="font-weight:700;font-size:15px;color:var(--brand-dk)">${fmt(tar)}</p></div>
+      </div>
+      ${tar>0?`<div class="pbar-wrap">
+        <div class="pbar-top"><span style="color:var(--sub);font-size:12px">進度</span><span style="color:var(--muted);font-size:12px">${p}% · 差 ${fmt(remain)}</span></div>
+        <div class="pbar-track"><div class="pbar-fill" style="width:${p}%;background:${a.color}"></div></div>
+        <div class="pbar-bottom"><span>${fmt(cur)}</span><span>目標 ${fmt(tar)}</span></div>
+      </div>`:'<p style="font-size:12px;color:var(--hint)">尚未設定目標金額</p>'}
+    </div>`;
+  }).join('');
+
+  const goalsHtml=goals.length===0
+    ?`<div class="card p-8 text-center"><p style="color:var(--muted)">尚無自訂目標<br><span style="font-size:12px">點上方「新增目標」開始</span></p></div>`
+    :goals.map(g=>{
+      const cur=+g.current||0,tar=+g.target||0;
+      const p=tar?Math.min(100,Math.round(cur/tar*100)):0;
+      return `<div class="card p-4" style="margin-bottom:8px">
+        <div class="flex justify-between items-start" style="margin-bottom:8px">
+          <span style="font-weight:600;font-size:15px;color:var(--text)">${esc(g.name)}</span>
+          <div class="flex gap-2">
+            <button onclick="openEditFinanceGoal('${g.id}')" style="font-size:12px;padding:4px 8px;border-radius:8px;border:1px solid var(--border);color:var(--sub);background:none;cursor:pointer">編輯</button>
+            <button onclick="delFinanceGoal('${g.id}')" style="font-size:12px;padding:4px 8px;border-radius:8px;border:1px solid #F0D8D8;color:var(--loss);background:none;cursor:pointer">刪除</button>
+          </div>
+        </div>
+        <div class="grid2" style="margin-bottom:10px">
+          <div><p style="font-size:11px;color:var(--muted);margin-bottom:2px">目前已存</p><p style="font-weight:700;font-size:14px;color:var(--profit)">${fmt(cur)}</p></div>
+          <div><p style="font-size:11px;color:var(--muted);margin-bottom:2px">目標金額</p><p style="font-weight:700;font-size:14px;color:var(--brand-dk)">${fmt(tar)}</p></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill" style="width:${p}%;background:var(--brand)"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--hint);margin-top:4px"><span>${p}%</span><span>還差 ${fmt(Math.max(0,tar-cur))}</span></div>
+      </div>`;
+    }).join('');
+
+  return `<div class="space-y-4">
+    <div class="card p-4" style="background:linear-gradient(135deg,var(--brand-lt),#fff)">
+      <p style="font-size:12px;color:var(--sub);margin-bottom:4px">三帳戶總資產</p>
+      <p style="font-size:28px;font-weight:700;color:var(--text)">${fmt(totalAsset)}</p>
+      ${totalTarget>0?`<p style="font-size:12px;color:var(--muted);margin-top:4px">目標總計 ${fmt(totalTarget)} · 還差 ${fmt(Math.max(0,totalTarget-totalAsset))}</p>`:''}
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:600;color:var(--sub);margin-bottom:12px">帳戶明細</p>
+      ${accountsHtml}
+    </div>
+    <div>
+      <div class="flex justify-between items-center" style="margin-bottom:12px">
+        <p style="font-size:13px;font-weight:600;color:var(--sub)">自訂目標</p>
+        <button onclick="openAddFinanceGoal()" class="btn btn-primary btn-sm">${svg(ICONS.plus,12)} 新增目標</button>
+      </div>
+      ${goalsHtml}
+    </div>
+  </div>`;
+}
+
+function openEditFinanceAccount(id){
+  const a=STATE.finance.accounts.find(x=>x.id===id);
+  if(!a)return;
+  STATE.editFinanceAccount=a;
+  FINANCE_ACCOUNT_FORM={name:a.name,current:String(a.current),monthly:String(a.monthly),target:String(a.target),color:a.color};
+  STATE.showFinanceAccountModal=true;
+  renderModal();
+}
+function saveFinanceAccount(){
+  const f=FINANCE_ACCOUNT_FORM;
+  STATE.finance.accounts=STATE.finance.accounts.map(a=>
+    a.id===STATE.editFinanceAccount.id?{...a,current:+f.current||0,monthly:+f.monthly||0,target:+f.target||0}:a
+  );
+  STATE.showFinanceAccountModal=false;STATE.editFinanceAccount=null;
+  saveToFirebase();renderModal();renderPage();
+}
+function openAddFinanceGoal(){
+  STATE.editFinanceGoal=null;
+  FINANCE_GOAL_FORM={name:'',target:'',current:''};
+  STATE.showFinanceGoalModal=true;renderModal();
+}
+function openEditFinanceGoal(id){
+  const g=STATE.finance.goals.find(x=>x.id===id);
+  if(!g)return;
+  STATE.editFinanceGoal=g;
+  FINANCE_GOAL_FORM={name:g.name,target:String(g.target),current:String(g.current)};
+  STATE.showFinanceGoalModal=true;renderModal();
+}
+function saveFinanceGoal(){
+  const f=FINANCE_GOAL_FORM;
+  if(!f.name.trim())return;
+  const g={id:STATE.editFinanceGoal?STATE.editFinanceGoal.id:Date.now().toString(),name:f.name,target:+f.target||0,current:+f.current||0};
+  if(STATE.editFinanceGoal)STATE.finance.goals=STATE.finance.goals.map(x=>x.id===g.id?g:x);
+  else STATE.finance.goals=[...STATE.finance.goals,g];
+  STATE.showFinanceGoalModal=false;STATE.editFinanceGoal=null;
+  saveToFirebase();renderModal();renderPage();
+}
+function delFinanceGoal(id){STATE.financeDelGoalId=id;renderModal();}
+function confirmDelFinanceGoal(){
+  STATE.finance.goals=STATE.finance.goals.filter(g=>g.id!==STATE.financeDelGoalId);
+  STATE.financeDelGoalId=null;saveToFirebase();renderModal();renderPage();
+}
+function renderFinanceAccountModal(){
+  const a=STATE.editFinanceAccount;
+  return `<div>
+    <p style="font-size:13px;font-weight:600;color:var(--sub);margin-bottom:16px">編輯「${esc(a.name)}」</p>
+    <div class="inp-wrap"><label class="inp-label">目前金額</label><input class="inp" type="number" placeholder="0" value="${FINANCE_ACCOUNT_FORM.current}" oninput="FINANCE_ACCOUNT_FORM.current=this.value"></div>
+    <div class="inp-wrap"><label class="inp-label">每月存入</label><input class="inp" type="number" placeholder="0" value="${FINANCE_ACCOUNT_FORM.monthly}" oninput="FINANCE_ACCOUNT_FORM.monthly=this.value"></div>
+    <div class="inp-wrap"><label class="inp-label">目標金額</label><input class="inp" type="number" placeholder="0" value="${FINANCE_ACCOUNT_FORM.target}" oninput="FINANCE_ACCOUNT_FORM.target=this.value"></div>
+    <div class="flex gap-2 mt-4"><button onclick="saveFinanceAccount()" class="btn btn-primary" style="flex:1">儲存</button><button onclick="closeModal()" class="btn btn-secondary" style="flex:1">取消</button></div>
+  </div>`;
+}
+function renderFinanceGoalModal(){
+  return `<div>
+    <div class="inp-wrap"><label class="inp-label">目標名稱</label><input class="inp" type="text" placeholder="例如：買包包、旅遊基金" value="${esc(FINANCE_GOAL_FORM.name)}" oninput="FINANCE_GOAL_FORM.name=this.value"></div>
+    <div class="inp-wrap"><label class="inp-label">目標金額</label><input class="inp" type="number" placeholder="0" value="${FINANCE_GOAL_FORM.target}" oninput="FINANCE_GOAL_FORM.target=this.value"></div>
+    <div class="inp-wrap"><label class="inp-label">目前已存</label><input class="inp" type="number" placeholder="0" value="${FINANCE_GOAL_FORM.current}" oninput="FINANCE_GOAL_FORM.current=this.value"></div>
+    <div class="flex gap-2 mt-4"><button onclick="saveFinanceGoal()" class="btn btn-primary" style="flex:1">儲存</button><button onclick="closeModal()" class="btn btn-secondary" style="flex:1">取消</button></div>
+  </div>`;
+}
+
+// ── Firebase 整合 ──────────────────────────────────────────────
+const FB_CONFIG={
+  apiKey:"AIzaSyCeYGJvOAt_QZdgBROn5Xa8n9L5olfYx6k",
+  authDomain:"chans-17311.firebaseapp.com",
+  projectId:"chans-17311",
+  storageBucket:"chans-17311.firebasestorage.app",
+  messagingSenderId:"408476953015",
+  appId:"1:408476953015:web:b2a8e83aeadf14b674a032"
+};
+let db=null;
+let FB_SAVE_TIMER=null;
+
+function initFirebase(){
+  try{
+    if(typeof firebase==='undefined'){console.log('Firebase 未載入，使用本地模式');return;}
+    firebase.initializeApp(FB_CONFIG);
+    db=firebase.firestore();
+    loadFromFirebase();
+    console.log('Firebase 已連線');
+  }catch(e){console.log('Firebase 初始化失敗:',e);}
+}
+
+async function saveToFirebase(){
+  if(!db)return;
+  try{
+    const data={
+      orders:STATE.orders,
+      expenses:STATE.expenses,
+      customers:STATE.customers,
+      finance:STATE.finance,
+      goalTarget:STATE.goalTarget,
+      savedAt:new Date().toISOString()
+    };
+    await db.collection('chans').doc('data').set(data);
+    console.log('已儲存到雲端');
+  }catch(e){console.log('儲存失敗:',e);}
+}
+
+function debounceSave(){
+  if(FB_SAVE_TIMER)clearTimeout(FB_SAVE_TIMER);
+  FB_SAVE_TIMER=setTimeout(saveToFirebase,1500);
+}
+
+async function loadFromFirebase(){
+  if(!db)return;
+  try{
+    const doc=await db.collection('chans').doc('data').get();
+    if(doc.exists){
+      const d=doc.data();
+      if(d.orders&&d.orders.length>0)STATE.orders=d.orders.map(calcOrder);
+      if(d.expenses)STATE.expenses=d.expenses;
+      if(d.customers)STATE.customers=d.customers;
+      if(d.finance)STATE.finance=d.finance;
+      if(d.goalTarget)STATE.goalTarget=d.goalTarget;
+      console.log('已從雲端讀取資料');
+      renderPage();
+    }
+  }catch(e){console.log('讀取失敗:',e);}
+}
+function setState(k,v){STATE[k]=v;}
+function toggleMonthGroup(key,mo){STATE[key][mo]=!STATE[key][mo];renderPage();}
+function prevMonth(k){const d=new Date(STATE[k]+'-01');d.setMonth(d.getMonth()-1);STATE[k]=d.toISOString().slice(0,7);renderPage();}
+function nextMonth(k){const d=new Date(STATE[k]+'-01');d.setMonth(d.getMonth()+1);STATE[k]=d.toISOString().slice(0,7);renderPage();}
+function setMonthlyVm(mo){STATE.monthlyVm=mo;renderPage();}
+function onInpChange(id,v){if(id==='dashVd'){STATE.dashVd=v;renderPage();}}
+function onSelChange(id,v){if(id==='orderFSrc'){STATE.orderFSrc=v;renderPage();}}
+
+// ── 初始化 ─────────────────────────────────────────────────────
+renderNav();
+renderPage();
+
+// Firebase 動態載入（需要網路）
+(function loadFirebase(){
+  const s1=document.createElement('script');
+  s1.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
+  s1.onload=function(){
+    const s2=document.createElement('script');
+    s2.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js';
+    s2.onload=initFirebase;
+    s2.onerror=function(){console.log('Firestore 載入失敗，使用本地模式');};
+    document.head.appendChild(s2);
+  };
+  s1.onerror=function(){console.log('Firebase 載入失敗，使用本地模式');};
+  document.head.appendChild(s1);
+})();
+</script>
+
+<script>
+// 如果是從檔案直接開啟，顯示提示
+if(location.protocol === 'file:') {
+  // file:// 協定下某些功能仍可用，但提示用戶可以正常使用
+  console.log('CHAN CRM: 本地檔案模式');
+}
+</script>
+</body>
+</html>
